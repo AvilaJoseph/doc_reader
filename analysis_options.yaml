@@ -1,0 +1,27 @@
+# Reglas de análisis estático del proyecto. Ver CLAUDE.md > "Calidad".
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - lib/l10n/generated/**
+    - "**/*.g.dart"
+    - android/**
+    - ios/**
+    - web/**
+  errors:
+    # Las clases públicas se documentan cuando aportan algo; no exigimos
+    # comentarios en cada miembro.
+    public_member_api_docs: ignore
+    # Con Riverpod los tipos de los providers son ruidosos y se infieren bien.
+    specify_nonobvious_property_types: ignore
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+linter:
+  rules:
+    # Preferimos importar desde el barril `core/ui.dart`.
+    always_use_package_imports: true
+    prefer_relative_imports: false

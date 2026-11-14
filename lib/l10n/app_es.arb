@@ -1,0 +1,104 @@
+{
+  "@@locale": "es",
+  "appTitle": "Folio",
+  "navLibrary": "Biblioteca",
+  "navHighlights": "Subrayados",
+  "navSettings": "Ajustes",
+  "back": "Volver",
+  "moreOptions": "Más opciones",
+  "undo": "Deshacer",
+  "retry": "Reintentar",
+  "copied": "Copiado",
+
+  "libraryTitle": "Biblioteca",
+  "librarySearchHint": "Buscar documentos",
+  "filterAll": "Todos",
+  "kindPdf": "PDF",
+  "kindWord": "Word",
+  "kindSpreadsheet": "Excel",
+  "kindText": "Texto",
+  "addDocument": "Añadir documento",
+  "addDocumentHint": "PDF, Word, Excel o texto",
+  "libraryEmptyTitle": "Tu biblioteca está vacía",
+  "libraryEmptyBody": "Abre un PDF, un Word o una hoja de cálculo. Sin anuncios y sin distracciones.",
+  "libraryOpenFile": "Abrir archivo",
+  "libraryTrySamples": "Probar con ejemplos",
+  "libraryNoResults": "Ningún documento coincide con la búsqueda",
+  "documentNotStarted": "Sin empezar",
+  "documentProgress": "{percent} % leído",
+  "@documentProgress": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "documentFinished": "Terminado",
+  "documentOpen": "Abrir",
+  "documentRename": "Cambiar nombre",
+  "documentShare": "Compartir",
+  "documentRemove": "Quitar de la biblioteca",
+  "documentRemoved": "«{title}» se quitó de la biblioteca",
+  "@documentRemoved": {
+    "placeholders": { "title": { "type": "String" } }
+  },
+  "renameTitle": "Cambiar nombre",
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "importAdded": "{count, plural, =1{Documento añadido} other{{count} documentos añadidos}}",
+  "@importAdded": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "importUnsupported": "Formato no compatible: {names}",
+  "@importUnsupported": {
+    "placeholders": { "names": { "type": "String" } }
+  },
+  "importFailed": "No se pudo abrir: {names}",
+  "@importFailed": {
+    "placeholders": { "names": { "type": "String" } }
+  },
+
+  "readerError": "No se pudo leer este documento",
+  "readerErrorMissing": "El archivo ya no está disponible en el dispositivo",
+  "readerErrorUnsupported": "Este formato todavía no es compatible",
+  "readerNotFound": "Este documento ya no está en la biblioteca",
+  "readerPageOf": "{current} de {total}",
+  "@readerPageOf": {
+    "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } }
+  },
+  "readerGoToPage": "Ir a la página",
+  "readerGo": "Ir",
+  "readerAppearance": "Lectura",
+  "readerTextSize": "Tamaño de letra",
+  "readerLineHeight": "Interlineado",
+  "readerAmbience": "Ambiente",
+  "readingThemePaper": "Papel",
+  "readingThemeSepia": "Sepia",
+  "readingThemeNight": "Noche",
+  "readerEmpty": "Este documento no tiene texto que mostrar",
+  "readerSheetEmpty": "Hoja vacía",
+  "readerSheetTruncated": "Se muestran las primeras {rows} filas",
+  "@readerSheetTruncated": {
+    "placeholders": { "rows": { "type": "int" } }
+  },
+
+  "highlightCopy": "Copiar",
+  "highlightRemove": "Quitar subrayado",
+  "highlightColor": "Subrayar en color {index}",
+  "@highlightColor": {
+    "placeholders": { "index": { "type": "int" } }
+  },
+  "highlightsTitle": "Subrayados",
+  "highlightsEmptyTitle": "Aún no hay subrayados",
+  "highlightsEmptyBody": "Selecciona texto en un documento de Word o de texto y elige un color para guardarlo aquí.",
+  "highlightDeleted": "Subrayado eliminado",
+
+  "settingsTitle": "Ajustes",
+  "settingsAppearance": "Apariencia",
+  "themeSystem": "Sistema",
+  "themeLight": "Claro",
+  "themeDark": "Oscuro",
+  "settingsReading": "Lectura",
+  "settingsPreview": "Una buena página desaparece: solo quedan las palabras y quien las lee.",
+  "settingsAbout": "Acerca de",
+  "settingsPrivacyTitle": "Sin anuncios ni rastreo",
+  "settingsPrivacyBody": "Folio no muestra publicidad ni recopila datos. Tus documentos se quedan en tu dispositivo.",
+  "settingsFormatsTitle": "Formatos compatibles",
+  "settingsFormatsBody": "PDF, Word (.docx), Excel (.xlsx), CSV, TXT y Markdown."
+}

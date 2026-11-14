@@ -16,6 +16,8 @@ class LibraryDocument {
     this.lastOpenedAt,
     this.progress = 0,
     this.position = 0,
+    this.bookmarks = const [],
+    this.favorite = false,
   });
 
   factory fromJson(Map<String, Object?> json) {
@@ -33,6 +35,11 @@ class LibraryDocument {
       },
       progress: (json['progress'] as num?)?.toDouble() ?? 0,
       position: (json['position'] as num?)?.toDouble() ?? 0,
+      bookmarks: [
+        for (final page in (json['bookmarks'] as List<Object?>?) ?? const [])
+          if (page is num) page.toInt(),
+      ],
+      favorite: json['favorite'] == true,
     );
   }
 
@@ -52,6 +59,12 @@ class LibraryDocument {
   /// número de página (PDF), fracción de scroll (texto), hoja (Excel).
   final double position;
 
+  /// Páginas marcadas (PDF), ordenadas.
+  final List<int> bookmarks;
+
+  /// Marcado como favorito en la biblioteca.
+  final bool favorite;
+
   String get extension => DocumentKind.extensionOf(fileName);
 
   bool get isStarted => progress > 0.005;
@@ -65,6 +78,8 @@ class LibraryDocument {
     DateTime? lastOpenedAt,
     double? progress,
     double? position,
+    List<int>? bookmarks,
+    bool? favorite,
   }) {
     return LibraryDocument(
       id: id,
@@ -77,6 +92,8 @@ class LibraryDocument {
       lastOpenedAt: lastOpenedAt ?? this.lastOpenedAt,
       progress: progress ?? this.progress,
       position: position ?? this.position,
+      bookmarks: bookmarks ?? this.bookmarks,
+      favorite: favorite ?? this.favorite,
     );
   }
 
@@ -91,6 +108,8 @@ class LibraryDocument {
     'lastOpenedAt': lastOpenedAt?.toIso8601String(),
     'progress': progress,
     'position': position,
+    if (bookmarks.isNotEmpty) 'bookmarks': bookmarks,
+    if (favorite) 'favorite': true,
   };
 
   @override
@@ -100,8 +119,18 @@ class LibraryDocument {
       other.title == title &&
       other.lastOpenedAt == lastOpenedAt &&
       other.progress == progress &&
-      other.position == position;
+      other.position == position &&
+      listEquals(other.bookmarks, bookmarks) &&
+      other.favorite == favorite;
 
   @override
-  int get hashCode => Object.hash(id, title, lastOpenedAt, progress, position);
+  int get hashCode => Object.hash(
+    id,
+    title,
+    lastOpenedAt,
+    progress,
+    position,
+    Object.hashAll(bookmarks),
+    favorite,
+  );
 }

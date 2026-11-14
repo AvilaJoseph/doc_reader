@@ -12,8 +12,10 @@ import 'package:doc_reader/features/highlights/presentation/annotation_toolbar.d
 import 'package:doc_reader/features/library/application/library_controller.dart';
 import 'package:doc_reader/features/library/domain/document_source.dart';
 import 'package:doc_reader/features/library/domain/library_document.dart';
+import 'package:doc_reader/features/reader/application/document_providers.dart';
 import 'package:doc_reader/features/reader/formats/pdf/pdf_night_filter.dart';
 import 'package:doc_reader/features/reader/formats/pdf/pdf_text_lines.dart';
+import 'package:doc_reader/features/reader/presentation/widgets/pdf_navigator_sheet.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_scaffold.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_search_bar.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_states.dart';
@@ -284,17 +286,39 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
     await _controller.goToPage(pageNumber: page.clamp(1, _pageCount));
   }
 
-  Future<void> _askPage() async {
-    final page = await showDialog<int>(
-      context: context,
-      builder: (context) => _GoToPageDialog(max: _pageCount),
+  /// Páginas marcadas del documento (se actualiza en cada build).
+  List<int> _bookmarks = const [];
+
+  void _toggleBookmark() {
+    unawaited(HapticFeedback.selectionClick());
+    unawaited(widget.library.toggleBookmark(widget.document.id, _page));
+  }
+
+  /// Hoja de navegación: número de página, miniaturas e índice.
+  Future<void> _openNavigator() async {
+    if (!_controller.isReady) return;
+    final target = await showPdfNavigator(
+      context,
+      document: _controller.document,
+      currentPage: _page,
+      bookmarks: _bookmarks,
+      pageFilter: _night ? pdfNightFilter : null,
     );
-    if (page != null) await _goTo(page);
+    if (target == null || !mounted) return;
+    if (target.dest case final dest?) {
+      await _controller.goToDest(dest);
+    } else if (target.page case final page?) {
+      await _goTo(page);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     _highlights = ref.watch(documentHighlightsProvider(widget.document.id));
+    _bookmarks = ref.watch(
+      libraryDocumentProvider(widget.document.id)
+          .select((doc) => doc?.bookmarks ?? const <int>[]),
+    );
     _night = ref.watch(
       settingsControllerProvider.select((s) => s.pdfNightMode),
     );
@@ -424,15 +448,27 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
           PillButton(
             icon: Icons.menu_book_outlined,
             label: context.l10n.readerPageOf(_page, _pageCount),
-            tooltip: context.l10n.readerGoToPage,
+            tooltip: context.l10n.readerNavigate,
             selected: true,
-            onPressed: _askPage,
+            onPressed: _openNavigator,
           ),
           PillButton(
             icon: Icons.chevron_right_rounded,
             tooltip: MaterialLocalizations.of(context).nextPageTooltip,
             onPressed: _page < _pageCount ? () => _goTo(_page + 1) : null,
           ),
+          if (_bookmarks.contains(_page))
+            PillButton(
+              icon: Icons.bookmark_rounded,
+              tooltip: context.l10n.readerBookmarkRemove,
+              onPressed: _toggleBookmark,
+            )
+          else
+            PillButton(
+              icon: Icons.bookmark_border_rounded,
+              tooltip: context.l10n.readerBookmarkAdd,
+              onPressed: _toggleBookmark,
+            ),
         ],
       ),
     );
@@ -455,56 +491,6 @@ class _MappedListenable<T, R> implements ValueListenable<R> {
   @override
   void removeListener(VoidCallback listener) =>
       _source.removeListener(listener);
-}
-
-class _GoToPageDialog extends StatefulWidget {
-  const new({required this.max});
-
-  final int max;
-
-  @override
-  State<_GoToPageDialog> createState() => _GoToPageDialogState();
-}
-
-class _GoToPageDialogState extends State<_GoToPageDialog> {
-  final _text = TextEditingController();
-
-  @override
-  void dispose() {
-    _text.dispose();
-    super.dispose();
-  }
-
-  void _submit() {
-    final page = int.tryParse(_text.text);
-    Navigator.of(context).pop(page);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return AlertDialog(
-      title: Text(l10n.readerGoToPage),
-      content: TextField(
-        controller: _text,
-        autofocus: true,
-        keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        decoration: InputDecoration(
-          hintText: '1 – ${widget.max}',
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-        ),
-        onSubmitted: (_) => _submit(),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.cancel),
-        ),
-        FilledButton(onPressed: _submit, child: Text(l10n.readerGo)),
-      ],
-    );
-  }
 }
 
 /// Pinta resaltados (fondo multiplicado) y subrayados (línea) en una página.

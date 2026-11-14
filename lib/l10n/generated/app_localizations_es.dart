@@ -191,6 +191,29 @@ class AppLocalizationsEs extends AppLocalizations {
   String get readerSearchNext => 'Siguiente';
 
   @override
+  String get readerNavigate => 'Navegar';
+
+  @override
+  String get readerPages => 'Páginas';
+
+  @override
+  String get readerOutline => 'Índice';
+
+  @override
+  String get readerBookmarks => 'Marcadores';
+
+  @override
+  String get readerBookmarkAdd => 'Marcar esta página';
+
+  @override
+  String get readerBookmarkRemove => 'Quitar marcador';
+
+  @override
+  String readerBookmarkPage(int page) {
+    return 'Página $page';
+  }
+
+  @override
   String get readerGo => 'Ir';
 
   @override

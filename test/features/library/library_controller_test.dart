@@ -91,6 +91,19 @@ void main() {
     expect(docs().single.position, 0.5);
   });
 
+  test('marca y desmarca páginas y favoritos', () async {
+    await controller().import([candidate('a.txt', 'x')]);
+    final id = docs().single.id;
+    await controller().toggleBookmark(id, 7);
+    await controller().toggleBookmark(id, 2);
+    expect(docs().single.bookmarks, [2, 7]);
+    await controller().toggleBookmark(id, 7);
+    expect(docs().single.bookmarks, [2]);
+
+    await controller().toggleFavorite(id);
+    expect(docs().single.favorite, isTrue);
+  });
+
   test('quitar permite deshacer y purgar borra el archivo', () async {
     await controller().import([candidate('a.txt', 'x')]);
     final doc = docs().single;

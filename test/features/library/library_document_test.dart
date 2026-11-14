@@ -16,6 +16,8 @@ void main() {
       lastOpenedAt: DateTime(2026, 1, 3),
       progress: 0.5,
       position: 12,
+      bookmarks: const [3, 9],
+      favorite: true,
     );
     final copy = LibraryDocument.fromJson(doc.toJson());
     expect(copy, doc);

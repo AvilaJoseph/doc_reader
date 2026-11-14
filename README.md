@@ -29,6 +29,17 @@ flutter run
 
 Requiere Flutter 3.50 (Dart 3.14) o superior.
 
+Para Android, instala también el **NDK 28.2.13676358** (lo pide `pdfrx`):
+Android Studio → SDK Manager → SDK Tools → NDK (Side by side), o
+`sdkmanager "ndk;28.2.13676358"`.
+
+Si el demonio de Gradle se cae por memoria, ciérralo y vuelve a lanzar:
+
+```bash
+cd android && ./gradlew --stop && cd ..   # en Windows: .\gradlew --stop
+flutter run
+```
+
 ## Desarrollo
 
 - Reglas y comandos: [`CLAUDE.md`](CLAUDE.md)

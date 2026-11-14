@@ -1,3 +1,4 @@
+import 'package:doc_reader/app/incoming_files.dart';
 import 'package:doc_reader/app/router.dart';
 import 'package:doc_reader/core/theme/app_theme.dart';
 import 'package:doc_reader/core/ui.dart';
@@ -22,6 +23,8 @@ class App extends ConsumerWidget {
       routerConfig: ref.watch(routerProvider),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      builder: (context, child) =>
+          IncomingFiles(child: child ?? const SizedBox.shrink()),
     );
   }
 }

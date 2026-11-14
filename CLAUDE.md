@@ -123,7 +123,7 @@ Detalle en `docs/ARCHITECTURE.md`; sistema de diseño en `docs/DESIGN.md`.
 
 ## Pendiente / ideas
 
-- "Abrir con…" desde otras apps (intent VIEW en Android, Document Types en
-  iOS) reutilizando `ImportCandidate`.
-- Marcadores, índice (TOC) de PDF.
+- "Abrir con…" en iOS (Document Types + SceneDelegate). En Android ya
+  funciona: `MainActivity.kt` copia el archivo a la caché y lo pasa por el
+  canal `folio/open_with` (`OpenWithChannel` → `IncomingFiles`).
 - Más formatos: .pptx, .odt, .epub, .rtf.

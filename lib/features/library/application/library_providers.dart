@@ -1,6 +1,7 @@
 import 'package:doc_reader/core/storage/preferences.dart';
 import 'package:doc_reader/features/library/data/cover_cache.dart';
 import 'package:doc_reader/features/library/data/document_file_store.dart';
+import 'package:doc_reader/features/library/data/open_with_channel.dart';
 import 'package:doc_reader/features/library/data/prefs_library_repository.dart';
 import 'package:doc_reader/features/library/domain/document_source.dart';
 import 'package:doc_reader/features/library/domain/library_repository.dart';
@@ -24,3 +25,7 @@ final pdfCoverProvider =
     FutureProvider.family<Uint8List?, (String, DocumentSource)>(
       (ref, key) => ref.watch(coverCacheProvider).pdfCover(key.$1, key.$2),
     );
+
+final openWithChannelProvider = Provider<OpenWithChannel>(
+  (ref) => OpenWithChannel(),
+);

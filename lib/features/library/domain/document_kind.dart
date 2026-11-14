@@ -9,6 +9,7 @@ enum DocumentKind {
   pdf(extensions: {'pdf'}),
   word(extensions: {'docx', 'rtf'}),
   spreadsheet(extensions: {'xlsx', 'csv', 'tsv'}),
+  presentation(extensions: {'pptx'}),
   text(extensions: {'txt', 'md', 'markdown', 'text', 'log', 'epub'}),
   image(extensions: {'jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'});
 

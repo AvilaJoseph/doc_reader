@@ -30,6 +30,7 @@ class DocumentCard extends StatelessWidget {
       DocumentKind.spreadsheet => l10n.kindSpreadsheet,
       DocumentKind.text => l10n.kindText,
       DocumentKind.image => l10n.kindImage,
+      DocumentKind.presentation => l10n.kindPresentation,
     };
     final size = formatFileSize(document.sizeBytes);
     final status = document.isFinished

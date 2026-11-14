@@ -200,6 +200,12 @@ abstract class AppLocalizations {
   /// **'Imagen'**
   String get kindImage;
 
+  /// No description provided for @kindPresentation.
+  ///
+  /// In es, this message translates to:
+  /// **'PowerPoint'**
+  String get kindPresentation;
+
   /// No description provided for @addDocument.
   ///
   /// In es, this message translates to:
@@ -707,7 +713,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsFormatsBody.
   ///
   /// In es, this message translates to:
-  /// **'PDF, Word (.docx, .rtf), Excel (.xlsx), CSV, TXT, Markdown, libros EPUB e imágenes (JPG, PNG, WebP).'**
+  /// **'PDF, Word (.docx, .rtf), Excel (.xlsx), PowerPoint (.pptx), CSV, TXT, Markdown, libros EPUB e imágenes (JPG, PNG, WebP).'**
   String get settingsFormatsBody;
 
   /// No description provided for @annotationUnderline.

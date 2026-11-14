@@ -111,7 +111,9 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
         library: ref.read(libraryControllerProvider.notifier),
         initialPage: widget.initialLocation,
       ),
-      DocumentKind.word || DocumentKind.text => FlowReaderScreen(
+      DocumentKind.word ||
+      DocumentKind.text ||
+      DocumentKind.presentation => FlowReaderScreen(
         document: document,
         onMore: onMore,
         initialBlock: widget.initialLocation,

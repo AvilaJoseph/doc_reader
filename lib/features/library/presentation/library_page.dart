@@ -214,6 +214,7 @@ class _KindFilterChips extends ConsumerWidget {
       (DocumentKind.pdf, l10n.kindPdf),
       (DocumentKind.word, l10n.kindWord),
       (DocumentKind.spreadsheet, l10n.kindSpreadsheet),
+      (DocumentKind.presentation, l10n.kindPresentation),
       (DocumentKind.text, l10n.kindText),
       (DocumentKind.image, l10n.kindImage),
     ];

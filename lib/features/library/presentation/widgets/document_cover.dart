@@ -17,6 +17,7 @@ extension DocumentKindStyle on DocumentKind {
     DocumentKind.spreadsheet => AppColors.kindSheet,
     DocumentKind.text => AppColors.kindText,
     DocumentKind.image => AppColors.kindImage,
+    DocumentKind.presentation => AppColors.kindSlides,
   };
 
   IconData get icon => switch (this) {
@@ -25,6 +26,7 @@ extension DocumentKindStyle on DocumentKind {
     DocumentKind.spreadsheet => Icons.table_chart_outlined,
     DocumentKind.text => Icons.notes_rounded,
     DocumentKind.image => Icons.image_outlined,
+    DocumentKind.presentation => Icons.slideshow_outlined,
   };
 }
 

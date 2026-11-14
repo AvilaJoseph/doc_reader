@@ -61,6 +61,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kindImage => 'Image';
 
   @override
+  String get kindPresentation => 'PowerPoint';
+
+  @override
   String get addDocument => 'Add document';
 
   @override
@@ -345,7 +348,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsFormatsBody =>
-      'PDF, Word (.docx, .rtf), Excel (.xlsx), CSV, TXT, Markdown, EPUB books and images (JPG, PNG, WebP).';
+      'PDF, Word (.docx, .rtf), Excel (.xlsx), PowerPoint (.pptx), CSV, TXT, Markdown, EPUB books and images (JPG, PNG, WebP).';
 
   @override
   String get annotationUnderline => 'Underline';

@@ -36,7 +36,7 @@ const hl = [
     ['reader-docx-search','/reader/w','light',{},{search:'lectura'}],
     ['reader-pdf-search','/reader/p','light',{},{search:'pantalla'}],
     ['reader-pdf-select','/reader/p','light',{},{longPress:[150,290]}],
-    ['reader-docx-select','/reader/w','light',{},{longPress:[150,500]}],
+    ['reader-docx-select','/reader/w','light',{},{longPress:[150,500], dragTo:[200,560]}],
     ['highlights','/highlights','light',{}],
     ['settings','/settings','light',{}],
     ['empty','/library','light',{empty:true}],
@@ -62,6 +62,14 @@ const hl = [
       const touch = (type, pts) => cdp.send('Input.dispatchTouchEvent', {type, touchPoints: pts});
       await touch('touchStart', [{x, y}]);
       await page.waitForTimeout(900);
+      if (act.dragTo) {
+        // Arrastra el dedo para ampliar la selección a otro párrafo.
+        for (let i = 1; i <= 8; i++) {
+          const px = x + (act.dragTo[0] - x) * i / 8, py = y + (act.dragTo[1] - y) * i / 8;
+          await touch('touchMove', [{x: px, y: py}]);
+          await page.waitForTimeout(40);
+        }
+      }
       await touch('touchEnd', []);
       await page.waitForTimeout(1500);
     }

@@ -6,7 +6,9 @@ import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/core/widgets/empty_state.dart';
 import 'package:doc_reader/core/widgets/floating_pill.dart';
 import 'package:doc_reader/features/highlights/application/highlights_controller.dart';
+import 'package:doc_reader/features/highlights/domain/highlight.dart';
 import 'package:doc_reader/features/highlights/presentation/annotation_actions.dart';
+import 'package:doc_reader/features/highlights/presentation/annotation_toolbar.dart';
 import 'package:doc_reader/features/library/application/library_controller.dart';
 import 'package:doc_reader/features/library/domain/library_document.dart';
 import 'package:doc_reader/features/reader/application/document_providers.dart';
@@ -53,6 +55,10 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
   final _pillVisible = ValueNotifier(true);
   bool _restored = false;
   late final LibraryController _library;
+
+  // Selección (puede abarcar varios párrafos).
+  final _selection = FlowSelectionRegistry();
+  String _selectedText = '';
 
   // Búsqueda dentro del documento.
   final _searchText = TextEditingController();
@@ -339,56 +345,86 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
       documentId: widget.document.id,
       documentTitle: widget.document.title,
     );
-    final actions = FlowAnnotationActions(
-      onMark: (draft, color, style) => annotations.mark([draft], color, style),
-      onNote: (draft) => unawaited(annotations.note([draft])),
-      onRemove: (draft) => annotations.remove([draft]),
-      onCopy: annotations.copy,
-      onShare: annotations.share,
-    );
     // Columna de lectura de ~680 px como máximo, centrada en tablets.
     final width = MediaQuery.sizeOf(context).width;
     final horizontal = width > 680 + AppSpacing.lg * 2
         ? (width - 680) / 2
         : AppSpacing.lg;
 
-    return NotificationListener<UserScrollNotification>(
-      onNotification: _onUserScroll,
-      child: Scrollbar(
-        controller: _scroll,
-        child: ListView.builder(
+    // Una sola zona de selección para todo el documento: se puede
+    // seleccionar de un párrafo a otro, como en cualquier app de Android.
+    return SelectionArea(
+      onSelectionChanged: (content) => _selectedText = content?.plainText ?? '',
+      contextMenuBuilder: (context, state) => _toolbar(state, annotations),
+      child: NotificationListener<UserScrollNotification>(
+        onNotification: _onUserScroll,
+        child: Scrollbar(
           controller: _scroll,
-          padding: EdgeInsets.fromLTRB(
-            horizontal,
-            AppSpacing.md,
-            horizontal,
-            AppSpacing.bottomPillClearance +
-                MediaQuery.paddingOf(context).bottom,
-          ),
-          itemCount: flow.blocks.length,
-          itemBuilder: (context, index) {
-            final block = flow.blocks[index];
-            final hits = _hitsByBlock[index] ?? const <TextRange>[];
-            int? currentHit;
-            if (hits.isNotEmpty) {
-              final current = _matches[_currentMatch];
-              if (current.blockIndex == index) {
-                currentHit = hits.indexWhere((h) => h.start == current.start);
+          child: ListView.builder(
+            controller: _scroll,
+            padding: EdgeInsets.fromLTRB(
+              horizontal,
+              AppSpacing.md,
+              horizontal,
+              AppSpacing.bottomPillClearance +
+                  MediaQuery.paddingOf(context).bottom,
+            ),
+            itemCount: flow.blocks.length,
+            itemBuilder: (context, index) {
+              final block = flow.blocks[index];
+              final hits = _hitsByBlock[index] ?? const <TextRange>[];
+              int? currentHit;
+              if (hits.isNotEmpty) {
+                final current = _matches[_currentMatch];
+                if (current.blockIndex == index) {
+                  currentHit = hits.indexWhere((h) => h.start == current.start);
+                }
               }
-            }
-            return FlowBlockView(
-              key: index == _targetBlock ? _targetKey : null,
-              searchHits: hits,
-              currentHit: currentHit,
-              block: block,
-              blockIndex: index,
-              style: style,
-              highlights: highlights[index] ?? const [],
-              actions: actions,
-            );
-          },
+              return FlowBlockView(
+                key: index == _targetBlock ? _targetKey : null,
+                searchHits: hits,
+                currentHit: currentHit,
+                block: block,
+                blockIndex: index,
+                style: style,
+                highlights: highlights[index] ?? const [],
+                selection: _selection,
+              );
+            },
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _toolbar(SelectableRegionState state, AnnotationActions annotations) {
+    final drafts = _selection.drafts();
+    final text = _selectedText.trim();
+    if (drafts.isEmpty && text.isEmpty) return const SizedBox.shrink();
+
+    void finish() {
+      state
+        ..hideToolbar()
+        ..clearSelection();
+    }
+
+    void run(void Function() action) {
+      finish();
+      action();
+    }
+
+    return AnnotationToolbar(
+      anchors: state.contextMenuAnchors,
+      onColor: (color) =>
+          run(() => annotations.mark(drafts, color, HighlightStyle.highlight)),
+      onUnderline: () =>
+          run(() => annotations.mark(drafts, 0, HighlightStyle.underline)),
+      onNote: () => run(() => unawaited(annotations.note(drafts))),
+      onCopy: () => run(() => annotations.copy(text)),
+      onShare: () => run(() => annotations.share(text)),
+      onRemove: annotations.touchesExisting(drafts)
+          ? () => run(() => annotations.remove(drafts))
+          : null,
     );
   }
 }

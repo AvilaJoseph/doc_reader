@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/features/highlights/application/highlights_controller.dart';
+import 'package:doc_reader/features/highlights/application/text_lookup.dart';
 import 'package:doc_reader/features/highlights/domain/highlight.dart';
 import 'package:doc_reader/features/highlights/presentation/note_dialog.dart';
 import 'package:doc_reader/l10n/l10n.dart';
@@ -79,4 +80,41 @@ class AnnotationActions {
       ),
     ),
   );
+
+  /// Si hay apps del sistema para traducir o definir texto.
+  bool get canLookUp =>
+      ref.read(textLookupActionsProvider).value?.isNotEmpty ?? false;
+
+  /// Envía [text] a una app del sistema (traductor, diccionario…). Si hay
+  /// varias, deja elegir con una hoja sencilla.
+  Future<void> lookUp(String text) async {
+    final actions = ref.read(textLookupActionsProvider).value ?? const [];
+    if (actions.isEmpty || text.trim().isEmpty) return;
+    final service = ref.read(processTextServiceProvider);
+    final action = actions.length == 1
+        ? actions.single
+        : await showModalBottomSheet<ProcessTextAction>(
+            context: context,
+            showDragHandle: true,
+            builder: (context) => SafeArea(
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  for (final action in actions)
+                    ListTile(
+                      leading: const Icon(Icons.translate_rounded),
+                      title: Text(action.label),
+                      onTap: () => Navigator.of(context).pop(action),
+                    ),
+                ],
+              ),
+            ),
+          );
+    if (action == null) return;
+    try {
+      await service.processTextAction(action.id, text.trim(), true);
+    } on PlatformException {
+      // La app elegida no respondió: no hay nada que mostrar.
+    }
+  }
 }

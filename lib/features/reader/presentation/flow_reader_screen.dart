@@ -6,6 +6,7 @@ import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/core/widgets/empty_state.dart';
 import 'package:doc_reader/core/widgets/floating_pill.dart';
 import 'package:doc_reader/features/highlights/application/highlights_controller.dart';
+import 'package:doc_reader/features/highlights/application/text_lookup.dart';
 import 'package:doc_reader/features/highlights/domain/highlight.dart';
 import 'package:doc_reader/features/highlights/presentation/annotation_actions.dart';
 import 'package:doc_reader/features/highlights/presentation/annotation_toolbar.dart';
@@ -264,6 +265,8 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsControllerProvider);
+    // Precarga las apps de traducir/definir para el menú de selección.
+    ref.watch(textLookupActionsProvider);
     final theme = settings.readingTheme;
     final flow = ref.watch(flowDocumentProvider(widget.document.id));
     final listening = ref.watch(
@@ -466,6 +469,9 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
           run(() => annotations.mark(drafts, 0, HighlightStyle.underline)),
       onNote: () => run(() => unawaited(annotations.note(drafts))),
       onCopy: () => run(() => annotations.copy(text)),
+      onLookUp: annotations.canLookUp
+          ? () => run(() => unawaited(annotations.lookUp(text)))
+          : null,
       onShare: () => run(() => annotations.share(text)),
       onRemove: annotations.touchesExisting(drafts)
           ? () => run(() => annotations.remove(drafts))

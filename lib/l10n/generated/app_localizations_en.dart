@@ -354,6 +354,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get annotationUnderline => 'Underline';
 
   @override
+  String get annotationLookUp => 'Translate or define';
+
+  @override
   String get annotationNote => 'Note';
 
   @override

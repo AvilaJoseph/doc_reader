@@ -104,6 +104,7 @@
   "settingsFormatsTitle": "Supported formats",
   "settingsFormatsBody": "PDF, Word (.docx, .rtf), Excel (.xlsx), PowerPoint (.pptx), CSV, TXT, Markdown, EPUB books and images (JPG, PNG, WebP).",
   "annotationUnderline": "Underline",
+  "annotationLookUp": "Translate or define",
   "annotationNote": "Note",
   "annotationNoteHint": "Write your note…",
   "annotationShareTitle": "Excerpt from “{title}”",

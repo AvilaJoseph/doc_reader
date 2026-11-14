@@ -722,6 +722,12 @@ abstract class AppLocalizations {
   /// **'Subrayar'**
   String get annotationUnderline;
 
+  /// No description provided for @annotationLookUp.
+  ///
+  /// In es, this message translates to:
+  /// **'Traducir o definir'**
+  String get annotationLookUp;
+
   /// No description provided for @annotationNote.
   ///
   /// In es, this message translates to:

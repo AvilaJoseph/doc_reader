@@ -126,4 +126,7 @@ Detalle en `docs/ARCHITECTURE.md`; sistema de diseño en `docs/DESIGN.md`.
 - "Abrir con…" en iOS (Document Types + SceneDelegate). En Android ya
   funciona: `MainActivity.kt` copia el archivo a la caché y lo pasa por el
   canal `folio/open_with` (`OpenWithChannel` → `IncomingFiles`).
-- Más formatos: .pptx, .odt, .epub, .rtf.
+- Más formatos: .odt.
+- Peso de la app: Joseph descartó el escáner con cámara y el diccionario
+  sin conexión por lo que pesan. "Traducir o definir" usa las apps del
+  sistema (`PROCESS_TEXT`, `text_lookup.dart`) y no añade nada.

@@ -4,7 +4,8 @@ import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/l10n/l10n.dart';
 
 /// Menú flotante sobre una selección de texto, común a todos los visores:
-/// colores de resaltado, subrayar, nota, copiar, compartir y quitar.
+/// colores de resaltado, subrayar, nota, copiar, traducir, compartir y
+/// quitar.
 class AnnotationToolbar extends StatelessWidget {
   const new({
     required this.anchors,
@@ -14,6 +15,7 @@ class AnnotationToolbar extends StatelessWidget {
     required this.onCopy,
     required this.onShare,
     super.key,
+    this.onLookUp,
     this.onRemove,
   });
 
@@ -23,6 +25,9 @@ class AnnotationToolbar extends StatelessWidget {
   final VoidCallback onNote;
   final VoidCallback onCopy;
   final VoidCallback onShare;
+
+  /// Traducir o definir con una app del sistema (solo si hay alguna).
+  final VoidCallback? onLookUp;
 
   /// Solo se muestra si la selección toca una marca existente.
   final VoidCallback? onRemove;
@@ -73,6 +78,12 @@ class AnnotationToolbar extends StatelessWidget {
           label: l10n.highlightCopy,
           onTap: onCopy,
         ),
+        if (onLookUp != null)
+          _ToolbarIcon(
+            icon: Icons.translate_rounded,
+            label: l10n.annotationLookUp,
+            onTap: onLookUp!,
+          ),
         _ToolbarIcon(
           icon: Icons.share_outlined,
           label: l10n.documentShare,

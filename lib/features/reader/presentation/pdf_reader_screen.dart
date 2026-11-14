@@ -6,6 +6,7 @@ import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/core/widgets/floating_pill.dart';
 import 'package:doc_reader/core/widgets/selection_handle.dart';
 import 'package:doc_reader/features/highlights/application/highlights_controller.dart';
+import 'package:doc_reader/features/highlights/application/text_lookup.dart';
 import 'package:doc_reader/features/highlights/domain/highlight.dart';
 import 'package:doc_reader/features/highlights/presentation/annotation_actions.dart';
 import 'package:doc_reader/features/highlights/presentation/annotation_toolbar.dart';
@@ -159,6 +160,9 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
         onNote: () => _withSelection(params, annotations.note),
         onCopy: () =>
             _withSelection(params, (d) => annotations.copy(joined(d))),
+        onLookUp: annotations.canLookUp
+            ? () => _withSelection(params, (d) => annotations.lookUp(joined(d)))
+            : null,
         onShare: () =>
             _withSelection(params, (d) => annotations.share(joined(d))),
         onRemove: annotations.touchesExisting(_selection)
@@ -336,6 +340,8 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
   @override
   Widget build(BuildContext context) {
     _highlights = ref.watch(documentHighlightsProvider(widget.document.id));
+    // Precarga las apps de traducir/definir para el menú de selección.
+    ref.watch(textLookupActionsProvider);
     _listening = ref.watch(
       readAloudControllerProvider.select((s) => s.isPlaying),
     );

@@ -99,8 +99,12 @@
   "readerSearchCount": "{current} de {total}",
   "@readerSearchCount": {
     "placeholders": {
-      "current": {"type": "int"},
-      "total": {"type": "int"}
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "readerSearchNone": "Sin resultados",
@@ -115,7 +119,9 @@
   "readerBookmarkPage": "Página {page}",
   "@readerBookmarkPage": {
     "placeholders": {
-      "page": {"type": "int"}
+      "page": {
+        "type": "int"
+      }
     }
   },
   "filterFavorites": "Favoritos",
@@ -174,6 +180,7 @@
   "settingsFormatsTitle": "Formatos compatibles",
   "settingsFormatsBody": "PDF, Word (.docx, .rtf), Excel (.xlsx), PowerPoint (.pptx), CSV, TXT, Markdown, libros EPUB e imágenes (JPG, PNG, WebP).",
   "annotationUnderline": "Subrayar",
+  "annotationLookUp": "Traducir o definir",
   "annotationNote": "Nota",
   "annotationNoteHint": "Escribe tu nota…",
   "annotationShareTitle": "Fragmento de «{title}»",

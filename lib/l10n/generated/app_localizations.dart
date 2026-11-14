@@ -458,6 +458,54 @@ abstract class AppLocalizations {
   /// **'Página {page}'**
   String readerBookmarkPage(int page);
 
+  /// No description provided for @filterFavorites.
+  ///
+  /// In es, this message translates to:
+  /// **'Favoritos'**
+  String get filterFavorites;
+
+  /// No description provided for @documentFavoriteAdd.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir a favoritos'**
+  String get documentFavoriteAdd;
+
+  /// No description provided for @documentFavoriteRemove.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar de favoritos'**
+  String get documentFavoriteRemove;
+
+  /// No description provided for @librarySort.
+  ///
+  /// In es, this message translates to:
+  /// **'Ordenar'**
+  String get librarySort;
+
+  /// No description provided for @librarySortRecent.
+  ///
+  /// In es, this message translates to:
+  /// **'Recientes'**
+  String get librarySortRecent;
+
+  /// No description provided for @librarySortTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre'**
+  String get librarySortTitle;
+
+  /// No description provided for @librarySortAdded.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadidos'**
+  String get librarySortAdded;
+
+  /// No description provided for @librarySortProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Progreso'**
+  String get librarySortProgress;
+
   /// No description provided for @readerGo.
   ///
   /// In es, this message translates to:

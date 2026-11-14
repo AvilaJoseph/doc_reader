@@ -149,4 +149,25 @@ void main() {
       'Datos.csv',
     );
   });
+
+  test('filtra favoritos y ordena por nombre', () async {
+    await controller().import([
+      candidate('zeta.txt', 'x'),
+      candidate('Álgebra.txt', 'y'),
+      candidate('media.txt', 'z'),
+    ]);
+    container.read(librarySortProvider.notifier).select(LibrarySort.title);
+    expect(container.read(filteredLibraryProvider).value!.map((d) => d.title), [
+      'Álgebra',
+      'media',
+      'zeta',
+    ]);
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('library.sort'), 'title');
+
+    final zeta = docs().firstWhere((d) => d.title == 'zeta');
+    await controller().toggleFavorite(zeta.id);
+    container.read(libraryFavoritesOnlyProvider.notifier).enabled = true;
+    expect(container.read(filteredLibraryProvider).value!.single.title, 'zeta');
+  });
 }

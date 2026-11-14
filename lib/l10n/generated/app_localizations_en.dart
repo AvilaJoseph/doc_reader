@@ -214,6 +214,30 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get filterFavorites => 'Favorites';
+
+  @override
+  String get documentFavoriteAdd => 'Add to favorites';
+
+  @override
+  String get documentFavoriteRemove => 'Remove from favorites';
+
+  @override
+  String get librarySort => 'Sort';
+
+  @override
+  String get librarySortRecent => 'Recent';
+
+  @override
+  String get librarySortTitle => 'Name';
+
+  @override
+  String get librarySortAdded => 'Date added';
+
+  @override
+  String get librarySortProgress => 'Progress';
+
+  @override
   String get readerGo => 'Go';
 
   @override

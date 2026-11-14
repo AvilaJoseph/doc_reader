@@ -43,6 +43,24 @@ Future<void> showDocumentActions(
               },
             ),
           ListTile(
+            leading: Icon(
+              doc.favorite ? Icons.star_rounded : Icons.star_outline_rounded,
+            ),
+            title: Text(
+              doc.favorite
+                  ? l10n.documentFavoriteRemove
+                  : l10n.documentFavoriteAdd,
+            ),
+            onTap: () {
+              Navigator.of(sheetContext).pop();
+              unawaited(
+                ref
+                    .read(libraryControllerProvider.notifier)
+                    .toggleFavorite(doc.id),
+              );
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.drive_file_rename_outline_rounded),
             title: Text(l10n.documentRename),
             onTap: () async {

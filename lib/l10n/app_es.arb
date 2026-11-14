@@ -116,6 +116,14 @@
       "page": {"type": "int"}
     }
   },
+  "filterFavorites": "Favoritos",
+  "documentFavoriteAdd": "Añadir a favoritos",
+  "documentFavoriteRemove": "Quitar de favoritos",
+  "librarySort": "Ordenar",
+  "librarySortRecent": "Recientes",
+  "librarySortTitle": "Nombre",
+  "librarySortAdded": "Añadidos",
+  "librarySortProgress": "Progreso",
   "readerGo": "Ir",
   "readerAppearance": "Lectura",
   "readerTextSize": "Tamaño de letra",

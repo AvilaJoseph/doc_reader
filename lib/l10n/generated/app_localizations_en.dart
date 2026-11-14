@@ -241,6 +241,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get highlightsExport => 'Export highlights';
 
   @override
+  String get readerListen => 'Listen';
+
+  @override
+  String get readerListenStop => 'Stop reading';
+
+  @override
   String get readerGo => 'Go';
 
   @override

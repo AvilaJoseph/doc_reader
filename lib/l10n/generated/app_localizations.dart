@@ -512,6 +512,18 @@ abstract class AppLocalizations {
   /// **'Exportar subrayados'**
   String get highlightsExport;
 
+  /// No description provided for @readerListen.
+  ///
+  /// In es, this message translates to:
+  /// **'Escuchar'**
+  String get readerListen;
+
+  /// No description provided for @readerListenStop.
+  ///
+  /// In es, this message translates to:
+  /// **'Detener lectura'**
+  String get readerListenStop;
+
   /// No description provided for @readerGo.
   ///
   /// In es, this message translates to:

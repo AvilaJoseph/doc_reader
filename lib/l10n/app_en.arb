@@ -69,6 +69,8 @@
   "librarySortAdded": "Date added",
   "librarySortProgress": "Progress",
   "highlightsExport": "Export highlights",
+  "readerListen": "Listen",
+  "readerListenStop": "Stop reading",
   "readerGo": "Go",
   "readerAppearance": "Reading",
   "readerTextSize": "Text size",

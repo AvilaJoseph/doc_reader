@@ -125,6 +125,8 @@
   "librarySortAdded": "Añadidos",
   "librarySortProgress": "Progreso",
   "highlightsExport": "Exportar subrayados",
+  "readerListen": "Escuchar",
+  "readerListenStop": "Detener lectura",
   "readerGo": "Ir",
   "readerAppearance": "Lectura",
   "readerTextSize": "Tamaño de letra",

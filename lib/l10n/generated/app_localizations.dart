@@ -434,6 +434,30 @@ abstract class AppLocalizations {
   /// **'Índice'**
   String get readerOutline;
 
+  /// No description provided for @readerBookmarks.
+  ///
+  /// In es, this message translates to:
+  /// **'Marcadores'**
+  String get readerBookmarks;
+
+  /// No description provided for @readerBookmarkAdd.
+  ///
+  /// In es, this message translates to:
+  /// **'Marcar esta página'**
+  String get readerBookmarkAdd;
+
+  /// No description provided for @readerBookmarkRemove.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar marcador'**
+  String get readerBookmarkRemove;
+
+  /// No description provided for @readerBookmarkPage.
+  ///
+  /// In es, this message translates to:
+  /// **'Página {page}'**
+  String readerBookmarkPage(int page);
+
   /// No description provided for @readerGo.
   ///
   /// In es, this message translates to:

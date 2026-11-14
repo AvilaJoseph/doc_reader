@@ -16,6 +16,7 @@ Future<PdfNavigation?> showPdfNavigator(
   BuildContext context, {
   required PdfDocument document,
   required int currentPage,
+  List<int> bookmarks = const [],
   ColorFilter? pageFilter,
 }) {
   return showModalBottomSheet<PdfNavigation>(
@@ -26,6 +27,7 @@ Future<PdfNavigation?> showPdfNavigator(
       child: _PdfNavigator(
         document: document,
         currentPage: currentPage,
+        bookmarks: bookmarks,
         pageFilter: pageFilter,
       ),
     ),
@@ -42,15 +44,20 @@ List<_OutlineEntry> _flatten(List<PdfOutlineNode> nodes, [int depth = 0]) => [
   ],
 ];
 
+/// Pestañas del navegador.
+enum _Tab { pages, outline, bookmarks }
+
 class _PdfNavigator extends StatefulWidget {
   const new({
     required this.document,
     required this.currentPage,
+    required this.bookmarks,
     required this.pageFilter,
   });
 
   final PdfDocument document;
   final int currentPage;
+  final List<int> bookmarks;
   final ColorFilter? pageFilter;
 
   @override
@@ -62,7 +69,7 @@ class _PdfNavigatorState extends State<_PdfNavigator> {
   late final Future<List<_OutlineEntry>> _outline = widget.document
       .loadOutline()
       .then(_flatten, onError: (_) => const <_OutlineEntry>[]);
-  bool _showOutline = false;
+  _Tab _tab = _Tab.pages;
 
   @override
   void dispose() {
@@ -127,10 +134,20 @@ class _PdfNavigatorState extends State<_PdfNavigator> {
           FutureBuilder(
             future: _outline,
             builder: (context, snapshot) {
-              // Las pestañas solo aparecen si el PDF trae índice.
-              if (snapshot.data?.isEmpty ?? true) {
+              // Las pestañas solo aparecen si hay índice o marcadores.
+              final hasOutline = snapshot.data?.isNotEmpty ?? false;
+              final hasBookmarks = widget.bookmarks.isNotEmpty;
+              if (!hasOutline && !hasBookmarks) {
                 return const SizedBox.shrink();
               }
+              Widget tab(_Tab tab, String label) => Padding(
+                padding: const EdgeInsets.only(right: AppSpacing.sm),
+                child: FilterPill(
+                  label: label,
+                  selected: _tab == tab,
+                  onTap: () => setState(() => _tab = tab),
+                ),
+              );
               return Padding(
                 padding: const EdgeInsets.fromLTRB(
                   AppSpacing.lg,
@@ -140,30 +157,25 @@ class _PdfNavigatorState extends State<_PdfNavigator> {
                 ),
                 child: Row(
                   children: [
-                    FilterPill(
-                      label: l10n.readerPages,
-                      selected: !_showOutline,
-                      onTap: () => setState(() => _showOutline = false),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    FilterPill(
-                      label: l10n.readerOutline,
-                      selected: _showOutline,
-                      onTap: () => setState(() => _showOutline = true),
-                    ),
+                    tab(_Tab.pages, l10n.readerPages),
+                    if (hasOutline) tab(_Tab.outline, l10n.readerOutline),
+                    if (hasBookmarks) tab(_Tab.bookmarks, l10n.readerBookmarks),
                   ],
                 ),
               );
             },
           ),
           Expanded(
-            child: _showOutline
-                ? _OutlineList(outline: _outline)
-                : _PageGrid(
-                    document: widget.document,
-                    currentPage: widget.currentPage,
-                    pageFilter: widget.pageFilter,
-                  ),
+            child: switch (_tab) {
+              _Tab.outline => _OutlineList(outline: _outline),
+              _Tab.bookmarks => _BookmarkList(bookmarks: widget.bookmarks),
+              _Tab.pages => _PageGrid(
+                document: widget.document,
+                currentPage: widget.currentPage,
+                bookmarks: widget.bookmarks,
+                pageFilter: widget.pageFilter,
+              ),
+            },
           ),
         ],
       ),
@@ -175,6 +187,7 @@ class _PageGrid extends StatefulWidget {
   const new({
     required this.document,
     required this.currentPage,
+    required this.bookmarks,
     required this.pageFilter,
   });
 
@@ -183,6 +196,7 @@ class _PageGrid extends StatefulWidget {
 
   final PdfDocument document;
   final int currentPage;
+  final List<int> bookmarks;
   final ColorFilter? pageFilter;
 
   @override
@@ -265,9 +279,24 @@ class _PageGridState extends State<_PageGrid> {
                           width: current ? 2 : 1,
                         ),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(2),
-                        child: thumb,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(2),
+                            child: thumb,
+                          ),
+                          if (widget.bookmarks.contains(page))
+                            Positioned(
+                              top: 0,
+                              right: 6,
+                              child: Icon(
+                                Icons.bookmark_rounded,
+                                size: 20,
+                                color: scheme.primary,
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ),
@@ -331,6 +360,31 @@ class _OutlineList extends StatelessWidget {
                       .pop<PdfNavigation>((page: null, dest: entry.dest)),
             );
           },
+        );
+      },
+    );
+  }
+}
+
+class _BookmarkList extends StatelessWidget {
+  const new({required this.bookmarks});
+
+  final List<int> bookmarks;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+      itemCount: bookmarks.length,
+      itemBuilder: (context, index) {
+        final page = bookmarks[index];
+        return ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          leading: const Icon(Icons.bookmark_rounded),
+          title: Text(context.l10n.readerBookmarkPage(page)),
+          onTap: () =>
+              Navigator.of(context)
+                  .pop<PdfNavigation>((page: page, dest: null)),
         );
       },
     );

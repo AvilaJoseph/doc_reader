@@ -12,6 +12,7 @@ import 'package:doc_reader/features/highlights/presentation/annotation_toolbar.d
 import 'package:doc_reader/features/library/application/library_controller.dart';
 import 'package:doc_reader/features/library/domain/document_source.dart';
 import 'package:doc_reader/features/library/domain/library_document.dart';
+import 'package:doc_reader/features/reader/application/document_providers.dart';
 import 'package:doc_reader/features/reader/formats/pdf/pdf_night_filter.dart';
 import 'package:doc_reader/features/reader/formats/pdf/pdf_text_lines.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/pdf_navigator_sheet.dart';
@@ -23,6 +24,7 @@ import 'package:doc_reader/features/reader/search/text_search.dart';
 import 'package:doc_reader/features/settings/application/settings_controller.dart';
 import 'package:doc_reader/l10n/l10n.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pdfrx/pdfrx.dart';
 
@@ -284,6 +286,14 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
     await _controller.goToPage(pageNumber: page.clamp(1, _pageCount));
   }
 
+  /// Páginas marcadas del documento (se actualiza en cada build).
+  List<int> _bookmarks = const [];
+
+  void _toggleBookmark() {
+    unawaited(HapticFeedback.selectionClick());
+    unawaited(widget.library.toggleBookmark(widget.document.id, _page));
+  }
+
   /// Hoja de navegación: número de página, miniaturas e índice.
   Future<void> _openNavigator() async {
     if (!_controller.isReady) return;
@@ -291,6 +301,7 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
       context,
       document: _controller.document,
       currentPage: _page,
+      bookmarks: _bookmarks,
       pageFilter: _night ? pdfNightFilter : null,
     );
     if (target == null || !mounted) return;
@@ -304,6 +315,10 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
   @override
   Widget build(BuildContext context) {
     _highlights = ref.watch(documentHighlightsProvider(widget.document.id));
+    _bookmarks = ref.watch(
+      libraryDocumentProvider(widget.document.id)
+          .select((doc) => doc?.bookmarks ?? const <int>[]),
+    );
     _night = ref.watch(
       settingsControllerProvider.select((s) => s.pdfNightMode),
     );
@@ -442,6 +457,18 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
             tooltip: MaterialLocalizations.of(context).nextPageTooltip,
             onPressed: _page < _pageCount ? () => _goTo(_page + 1) : null,
           ),
+          if (_bookmarks.contains(_page))
+            PillButton(
+              icon: Icons.bookmark_rounded,
+              tooltip: context.l10n.readerBookmarkRemove,
+              onPressed: _toggleBookmark,
+            )
+          else
+            PillButton(
+              icon: Icons.bookmark_border_rounded,
+              tooltip: context.l10n.readerBookmarkAdd,
+              onPressed: _toggleBookmark,
+            ),
         ],
       ),
     );

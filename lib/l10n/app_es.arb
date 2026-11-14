@@ -107,6 +107,15 @@
   "readerNavigate": "Navegar",
   "readerPages": "Páginas",
   "readerOutline": "Índice",
+  "readerBookmarks": "Marcadores",
+  "readerBookmarkAdd": "Marcar esta página",
+  "readerBookmarkRemove": "Quitar marcador",
+  "readerBookmarkPage": "Página {page}",
+  "@readerBookmarkPage": {
+    "placeholders": {
+      "page": {"type": "int"}
+    }
+  },
   "readerGo": "Ir",
   "readerAppearance": "Lectura",
   "readerTextSize": "Tamaño de letra",

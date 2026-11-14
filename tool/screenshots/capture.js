@@ -10,7 +10,7 @@ const types = {'.html':'text/html','.js':'application/javascript','.wasm':'appli
 const server = http.createServer((req,res)=>{ let p = decodeURIComponent(req.url.split('?')[0]); if(p==='/'||!fs.existsSync(path.join(root,p))) p='/index.html'; const f=path.join(root,p); res.writeHead(200,{'Content-Type':types[path.extname(f)]||'application/octet-stream'}); fs.createReadStream(f).pipe(res);}).listen(8099);
 const docs = [
  {id:'w',title:'Bienvenida a Folio',fileName:'bienvenida.docx',kind:'word',source:'asset:assets/samples/bienvenida.docx',sizeBytes:37658,addedAt:'2026-11-14T10:00:00.000',progress:0.35,position:0},
- {id:'p',title:'Guía de lectura',fileName:'guia.pdf',kind:'pdf',source:'asset:assets/samples/guia.pdf',sizeBytes:4155,addedAt:'2026-11-13T10:00:00.000'},
+ {id:'p',title:'Guía de lectura',fileName:'guia.pdf',kind:'pdf',source:'asset:assets/samples/guia.pdf',sizeBytes:4155,addedAt:'2026-11-13T10:00:00.000',bookmarks:[1,3]},
  {id:'x',title:'Presupuesto mensual',fileName:'presupuesto.xlsx',kind:'spreadsheet',source:'asset:assets/samples/presupuesto.xlsx',sizeBytes:5962,addedAt:'2026-11-12T10:00:00.000'},
  {id:'m',title:'Notas de ideas',fileName:'notas.md',kind:'text',source:'asset:assets/samples/notas.md',sizeBytes:491,addedAt:'2026-11-11T10:00:00.000',progress:1},
 ];

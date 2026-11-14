@@ -122,6 +122,19 @@ class LibraryController extends AsyncNotifier<List<LibraryDocument>> {
     resort: false,
   );
 
+  /// Marca o desmarca [page] como marcador del documento.
+  Future<void> toggleBookmark(String id, int page) => _update(id, (doc) {
+    final pages = {...doc.bookmarks};
+    if (!pages.remove(page)) pages.add(page);
+    return doc.copyWith(bookmarks: pages.toList()..sort());
+  }, resort: false);
+
+  Future<void> toggleFavorite(String id) => _update(
+    id,
+    (doc) => doc.copyWith(favorite: !doc.favorite),
+    resort: false,
+  );
+
   Future<void> rename(String id, String title) =>
       _update(id, (doc) => doc.copyWith(title: title.trim()));
 

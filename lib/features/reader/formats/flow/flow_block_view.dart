@@ -82,6 +82,8 @@ class FlowBlockView extends StatelessWidget {
     required this.highlights,
     required this.actions,
     super.key,
+    this.searchHits = const [],
+    this.currentHit,
   });
 
   final FlowBlock block;
@@ -89,6 +91,10 @@ class FlowBlockView extends StatelessWidget {
   final FlowReadingStyle style;
   final List<Highlight> highlights;
   final FlowAnnotationActions actions;
+
+  /// Coincidencias de la búsqueda en este bloque y cuál es la actual.
+  final List<TextRange> searchHits;
+  final int? currentHit;
 
   @override
   Widget build(BuildContext context) {
@@ -113,6 +119,10 @@ class FlowBlockView extends StatelessWidget {
           styleFor: (run) => _runStyle(base, run),
           colorFor: style.highlightColor,
           underlineColor: style.underlineColor,
+          searchHits: searchHits,
+          currentHit: currentHit,
+          searchColor: AppColors.searchMatch,
+          currentSearchColor: AppColors.searchCurrent,
         ),
       ),
       textAlign: switch (paragraph.alignment) {

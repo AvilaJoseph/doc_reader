@@ -4,6 +4,7 @@ import 'package:doc_reader/core/theme/app_colors.dart';
 import 'package:doc_reader/core/theme/reading_theme.dart';
 import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/core/widgets/floating_pill.dart';
+import 'package:doc_reader/core/widgets/selection_handle.dart';
 import 'package:doc_reader/features/highlights/application/highlights_controller.dart';
 import 'package:doc_reader/features/highlights/domain/highlight.dart';
 import 'package:doc_reader/features/highlights/presentation/annotation_actions.dart';
@@ -14,8 +15,10 @@ import 'package:doc_reader/features/library/domain/library_document.dart';
 import 'package:doc_reader/features/reader/formats/pdf/pdf_night_filter.dart';
 import 'package:doc_reader/features/reader/formats/pdf/pdf_text_lines.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_scaffold.dart';
+import 'package:doc_reader/features/reader/presentation/widgets/reader_search_bar.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_states.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_top_bar.dart';
+import 'package:doc_reader/features/reader/search/text_search.dart';
 import 'package:doc_reader/features/settings/application/settings_controller.dart';
 import 'package:doc_reader/l10n/l10n.dart';
 import 'package:flutter/foundation.dart';
@@ -162,6 +165,25 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
     );
   }
 
+  /// Asas finas tipo Android en lugar de los triángulos de pdfrx.
+  Widget _buildSelectionHandle(
+    BuildContext context,
+    PdfTextSelectionAnchor anchor,
+    PdfViewerTextSelectionAnchorHandleState state,
+  ) => SelectionHandle(isStart: anchor.type == PdfTextSelectionAnchorType.a);
+
+  /// pdfrx coloca el asa de inicio encima del texto; la bajamos para que
+  /// su punta toque la esquina inferior izquierda de la primera letra.
+  Offset _selectionHandleOffset(
+    BuildContext context,
+    PdfTextSelectionAnchor anchor,
+    PdfViewerTextSelectionAnchorHandleState state,
+  ) {
+    if (anchor.type != PdfTextSelectionAnchorType.a) return Offset.zero;
+    final height = anchor.rect.height.abs() * _controller.currentZoom;
+    return Offset(0, height + SelectionHandle.size);
+  }
+
   List<Widget> _buildPageOverlays(
     BuildContext context,
     Rect pageRect,
@@ -203,6 +225,8 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
     _saveTimer?.cancel();
     _save();
     _pageNotifier.dispose();
+    _searcher.dispose();
+    _searchText.dispose();
     super.dispose();
   }
 
@@ -226,6 +250,34 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
   }
 
   late final int _initialPage = _page;
+
+  // Búsqueda: pdfrx recorre las páginas en segundo plano y pinta los
+  // resultados; aquí solo se maneja la barra.
+  late final _searcher = PdfTextSearcher(_controller);
+  late final List<PdfViewerPagePaintCallback> _paintCallbacks = [
+    _searcher.pageTextMatchPaintCallback,
+  ];
+  final _searchText = TextEditingController();
+  bool _searchOpen = false;
+
+  void _openSearch() => setState(() => _searchOpen = true);
+
+  void _closeSearch() {
+    _searcher.resetTextSearch();
+    _searchText.clear();
+    setState(() => _searchOpen = false);
+  }
+
+  void _onQueryChanged(String query) {
+    if (query.trim().isEmpty) {
+      _searcher.resetTextSearch();
+      return;
+    }
+    _searcher.startTextSearch(
+      accentInsensitivePattern(query),
+      startPageNumber: _page,
+    );
+  }
 
   Future<void> _goTo(int page) async {
     if (!_controller.isReady || _pageCount == 0) return;
@@ -254,9 +306,14 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
     final params = PdfViewerParams(
       textSelectionParams: PdfTextSelectionParams(
         onTextSelectionChange: _onSelectionChanged,
+        buildSelectionHandle: _buildSelectionHandle,
+        calcSelectionHandleOffset: _selectionHandleOffset,
       ),
       buildContextMenu: _buildContextMenu,
       pageOverlaysBuilder: _buildPageOverlays,
+      pagePaintCallbacks: _paintCallbacks,
+      matchTextColor: AppColors.searchMatch,
+      activeMatchTextColor: AppColors.searchCurrent,
       backgroundColor: background,
       pageImageColorFilter: _night ? pdfNightFilter : null,
       margin: 10,
@@ -289,32 +346,57 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
       ),
     };
 
-    return ReaderScaffold(
-      title: widget.document.title,
-      liveSubtitle: _pageCount == 0 ? null : _pageLabel,
-      background: background,
-      foreground: foreground,
-      muted: muted,
-      onMore: widget.onMore,
-      actions: [
-        ReaderBarAction(
-          icon: _night ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-          tooltip: _night
-              ? context.l10n.readerDayMode
-              : context.l10n.readerNightMode,
-          active: _night,
-          onPressed: () => ref
-              .read(settingsControllerProvider.notifier)
-              .setPdfNightMode(enabled: !_night),
-        ),
-      ],
-      body: viewer,
-      bottomPill: _pageCount == 0
-          ? null
-          : ValueListenableBuilder<int>(
-              valueListenable: _pageNotifier,
-              builder: (context, _, _) => _pagePill(context),
-            ),
+    // Con la búsqueda abierta, "atrás" la cierra en vez de salir.
+    return PopScope(
+      canPop: !_searchOpen,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _closeSearch();
+      },
+      child: ReaderScaffold(
+        title: widget.document.title,
+        searchBar: !_searchOpen
+            ? null
+            : ListenableBuilder(
+                listenable: _searcher,
+                builder: (context, _) => ReaderSearchBar(
+                  controller: _searchText,
+                  background: background,
+                  foreground: foreground,
+                  muted: muted,
+                  current: _searcher.currentIndex,
+                  total: _searcher.matches.length,
+                  searching: _searcher.isSearching,
+                  onChanged: _onQueryChanged,
+                  onNext: () => unawaited(_searcher.goToNextMatch()),
+                  onPrevious: () => unawaited(_searcher.goToPrevMatch()),
+                  onClose: _closeSearch,
+                ),
+              ),
+        liveSubtitle: _pageCount == 0 ? null : _pageLabel,
+        background: background,
+        foreground: foreground,
+        muted: muted,
+        onMore: widget.onMore,
+        actions: [
+          ReaderBarAction(
+            icon: _night ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+            tooltip: _night
+                ? context.l10n.readerDayMode
+                : context.l10n.readerNightMode,
+            active: _night,
+            onPressed: () => ref
+                .read(settingsControllerProvider.notifier)
+                .setPdfNightMode(enabled: !_night),
+          ),
+        ],
+        body: viewer,
+        bottomPill: _pageCount == 0
+            ? null
+            : ValueListenableBuilder<int>(
+                valueListenable: _pageNotifier,
+                builder: (context, _, _) => _pagePill(context),
+              ),
+      ),
     );
   }
 
@@ -329,6 +411,11 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          PillButton(
+            icon: Icons.search_rounded,
+            tooltip: context.l10n.readerSearch,
+            onPressed: _openSearch,
+          ),
           PillButton(
             icon: Icons.chevron_left_rounded,
             tooltip: MaterialLocalizations.of(context).previousPageTooltip,

@@ -171,6 +171,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readerUnlockRotation => 'Allow rotation';
 
   @override
+  String get readerSearch => 'Search in document';
+
+  @override
+  String get readerSearchHint => 'Search…';
+
+  @override
+  String readerSearchCount(int current, int total) {
+    return '$current of $total';
+  }
+
+  @override
+  String get readerSearchNone => 'No results';
+
+  @override
+  String get readerSearchPrevious => 'Previous';
+
+  @override
+  String get readerSearchNext => 'Next';
+
+  @override
   String get readerGo => 'Go';
 
   @override

@@ -23,6 +23,7 @@ class ReaderScaffold extends ConsumerWidget {
     this.pillVisible,
     this.onMore,
     this.actions = const [],
+    this.searchBar,
   });
 
   final String title;
@@ -44,6 +45,9 @@ class ReaderScaffold extends ConsumerWidget {
   /// Botones extra del visor, a la izquierda del bloqueo de giro.
   final List<ReaderBarAction> actions;
 
+  /// Si no es null, sustituye a la barra superior (modo búsqueda).
+  final Widget? searchBar;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locked = ref.watch(
@@ -54,30 +58,33 @@ class ReaderScaffold extends ConsumerWidget {
       backgroundColor: background,
       body: Column(
         children: [
-          ReaderTopBar(
-            title: title,
-            subtitle: subtitle,
-            liveSubtitle: liveSubtitle,
-            background: background,
-            foreground: foreground,
-            muted: muted,
-            onMore: onMore,
-            actions: [
-              ...actions,
-              ReaderBarAction(
-                icon: locked
-                    ? Icons.screen_lock_rotation_rounded
-                    : Icons.screen_rotation_rounded,
-                tooltip: locked
-                    ? l10n.readerUnlockRotation
-                    : l10n.readerLockRotation,
-                active: locked,
-                onPressed: () => ref
-                    .read(settingsControllerProvider.notifier)
-                    .setLockRotation(enabled: !locked),
-              ),
-            ],
-          ),
+          if (searchBar case final bar?)
+            bar
+          else
+            ReaderTopBar(
+              title: title,
+              subtitle: subtitle,
+              liveSubtitle: liveSubtitle,
+              background: background,
+              foreground: foreground,
+              muted: muted,
+              onMore: onMore,
+              actions: [
+                ...actions,
+                ReaderBarAction(
+                  icon: locked
+                      ? Icons.screen_lock_rotation_rounded
+                      : Icons.screen_rotation_rounded,
+                  tooltip: locked
+                      ? l10n.readerUnlockRotation
+                      : l10n.readerLockRotation,
+                  active: locked,
+                  onPressed: () => ref
+                      .read(settingsControllerProvider.notifier)
+                      .setLockRotation(enabled: !locked),
+                ),
+              ],
+            ),
           Expanded(
             child: Stack(
               children: [

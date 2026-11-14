@@ -35,6 +35,7 @@
                 <data android:mimeType="text/plain"/>
                 <data android:mimeType="application/rtf"/>
                 <data android:mimeType="text/rtf"/>
+                <data android:mimeType="application/epub+zip"/>
                 <data android:mimeType="text/markdown"/>
                 <data android:mimeType="text/x-markdown"/>
             </intent-filter>
@@ -50,6 +51,7 @@
                 <data android:mimeType="text/plain"/>
                 <data android:mimeType="application/rtf"/>
                 <data android:mimeType="text/rtf"/>
+                <data android:mimeType="application/epub+zip"/>
                 <data android:mimeType="text/markdown"/>
                 <data android:mimeType="text/x-markdown"/>
             </intent-filter>

@@ -345,7 +345,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsFormatsBody =>
-      'PDF, Word (.docx, .rtf), Excel (.xlsx), CSV, TXT, Markdown e imágenes (JPG, PNG, WebP).';
+      'PDF, Word (.docx, .rtf), Excel (.xlsx), CSV, TXT, Markdown, libros EPUB e imágenes (JPG, PNG, WebP).';
 
   @override
   String get annotationUnderline => 'Subrayar';

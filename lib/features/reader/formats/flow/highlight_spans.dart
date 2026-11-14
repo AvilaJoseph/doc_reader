@@ -57,7 +57,7 @@ List<TextSpan> buildHighlightedSpans({
         Highlight(style: HighlightStyle.underline) => style.copyWith(
           decoration: TextDecoration.underline,
           decorationColor: underlineColor,
-          decorationThickness: 2.2,
+          decorationThickness: 1.8,
         ),
         final h => style.copyWith(
           backgroundColor: colorFor(h.colorIndex),

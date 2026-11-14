@@ -115,14 +115,15 @@ Detalle en `docs/ARCHITECTURE.md`; sistema de diseño en `docs/DESIGN.md`.
   `GoogleFonts.x().fontFamily` o `GoogleFonts.x(textStyle: ...)`.
 - `Center` sin `heightFactor` dentro de una píldora se expande a toda la
   altura (rompía la navegación).
+- El lector de texto es una sola `SelectionArea`; cada párrafo informa de
+  su parte de la selección con `SelectionListener` y
+  `FlowSelectionRegistry` la convierte en fragmentos por párrafo.
 - Web solo se usa para capturas/previsualización; los imports de archivos
   usan `dart:io` y no funcionan en web.
 
 ## Pendiente / ideas
 
-- Selección entre párrafos distintos en Word/TXT (hoy cada párrafo se
-  selecciona por separado).
 - "Abrir con…" desde otras apps (intent VIEW en Android, Document Types en
   iOS) reutilizando `ImportCandidate`.
-- Búsqueda dentro del documento, marcadores, índice (TOC) de PDF.
+- Marcadores, índice (TOC) de PDF.
 - Más formatos: .pptx, .odt, .epub, .rtf.

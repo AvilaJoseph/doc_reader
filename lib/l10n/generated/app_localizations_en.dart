@@ -238,6 +238,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get librarySortProgress => 'Progress';
 
   @override
+  String get highlightsExport => 'Export highlights';
+
+  @override
   String get readerGo => 'Go';
 
   @override

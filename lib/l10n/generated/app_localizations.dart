@@ -506,6 +506,12 @@ abstract class AppLocalizations {
   /// **'Progreso'**
   String get librarySortProgress;
 
+  /// No description provided for @highlightsExport.
+  ///
+  /// In es, this message translates to:
+  /// **'Exportar subrayados'**
+  String get highlightsExport;
+
   /// No description provided for @readerGo.
   ///
   /// In es, this message translates to:

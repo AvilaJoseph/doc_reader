@@ -215,6 +215,7 @@ class _KindFilterChips extends ConsumerWidget {
       (DocumentKind.word, l10n.kindWord),
       (DocumentKind.spreadsheet, l10n.kindSpreadsheet),
       (DocumentKind.text, l10n.kindText),
+      (DocumentKind.image, l10n.kindImage),
     ];
     return SizedBox(
       height: 40,

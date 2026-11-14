@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:doc_reader/core/theme/app_colors.dart';
 import 'package:doc_reader/core/theme/app_theme.dart';
 import 'package:doc_reader/core/theme/app_typography.dart';
 import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/features/library/application/library_providers.dart';
 import 'package:doc_reader/features/library/domain/document_kind.dart';
+import 'package:doc_reader/features/library/domain/document_source.dart';
 import 'package:doc_reader/features/library/domain/library_document.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,6 +16,7 @@ extension DocumentKindStyle on DocumentKind {
     DocumentKind.word => AppColors.kindWord,
     DocumentKind.spreadsheet => AppColors.kindSheet,
     DocumentKind.text => AppColors.kindText,
+    DocumentKind.image => AppColors.kindImage,
   };
 
   IconData get icon => switch (this) {
@@ -20,6 +24,7 @@ extension DocumentKindStyle on DocumentKind {
     DocumentKind.word => Icons.article_outlined,
     DocumentKind.spreadsheet => Icons.table_chart_outlined,
     DocumentKind.text => Icons.notes_rounded,
+    DocumentKind.image => Icons.image_outlined,
   };
 }
 
@@ -37,9 +42,17 @@ class DocumentCover extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final generated = GeneratedCover(document: document);
-    final child = document.kind == DocumentKind.pdf
-        ? _PdfFirstPage(document: document, fallback: generated)
-        : generated;
+    final child = switch (document.kind) {
+      DocumentKind.pdf => _PdfFirstPage(
+        document: document,
+        fallback: generated,
+      ),
+      DocumentKind.image => _ImageThumb(
+        document: document,
+        fallback: generated,
+      ),
+      _ => generated,
+    };
     return AspectRatio(
       aspectRatio: aspectRatio,
       child: DecoratedBox(
@@ -105,6 +118,34 @@ class _PdfFirstPage extends ConsumerWidget {
         errorBuilder: (_, _, _) => fallback,
       ),
     );
+  }
+}
+
+/// La propia imagen, decodificada pequeña para la tarjeta.
+class _ImageThumb extends StatelessWidget {
+  const new({required this.document, required this.fallback});
+
+  final LibraryDocument document;
+  final Widget fallback;
+
+  @override
+  Widget build(BuildContext context) {
+    const width = 360;
+    Widget error(BuildContext _, Object _, StackTrace? _) => fallback;
+    return switch (document.source) {
+      FileSource(:final path) => Image.file(
+        File(path),
+        fit: BoxFit.cover,
+        cacheWidth: width,
+        errorBuilder: error,
+      ),
+      AssetSource(:final assetPath) => Image.asset(
+        assetPath,
+        fit: BoxFit.cover,
+        cacheWidth: width,
+        errorBuilder: error,
+      ),
+    };
   }
 }
 

@@ -58,6 +58,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get kindText => 'Texto';
 
   @override
+  String get kindImage => 'Imagen';
+
+  @override
   String get addDocument => 'Añadir documento';
 
   @override
@@ -342,7 +345,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsFormatsBody =>
-      'PDF, Word (.docx), Excel (.xlsx), CSV, TXT y Markdown.';
+      'PDF, Word (.docx), Excel (.xlsx), CSV, TXT, Markdown e imágenes (JPG, PNG, WebP).';
 
   @override
   String get annotationUnderline => 'Subrayar';

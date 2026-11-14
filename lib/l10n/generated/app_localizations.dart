@@ -194,6 +194,12 @@ abstract class AppLocalizations {
   /// **'Texto'**
   String get kindText;
 
+  /// No description provided for @kindImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Imagen'**
+  String get kindImage;
+
   /// No description provided for @addDocument.
   ///
   /// In es, this message translates to:
@@ -701,7 +707,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsFormatsBody.
   ///
   /// In es, this message translates to:
-  /// **'PDF, Word (.docx), Excel (.xlsx), CSV, TXT y Markdown.'**
+  /// **'PDF, Word (.docx), Excel (.xlsx), CSV, TXT, Markdown e imágenes (JPG, PNG, WebP).'**
   String get settingsFormatsBody;
 
   /// No description provided for @annotationUnderline.

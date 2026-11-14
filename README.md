@@ -1,7 +1,7 @@
 # Folio
 
 Lector de documentos para Android e iOS hecho con Flutter: **PDF, Word,
-Excel, CSV, TXT y Markdown** en una sola app, **sin anuncios, sin rastreo y
+Excel, CSV, TXT, Markdown e imágenes** en una sola app, **sin anuncios, sin rastreo y
 sin conexión**.
 
 ![Capturas de Folio](docs/preview.png)

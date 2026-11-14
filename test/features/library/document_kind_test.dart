@@ -8,6 +8,7 @@ void main() {
     expect(DocumentKind.fromFileName('datos.xlsx'), DocumentKind.spreadsheet);
     expect(DocumentKind.fromFileName('datos.csv'), DocumentKind.spreadsheet);
     expect(DocumentKind.fromFileName('notas.md'), DocumentKind.text);
+    expect(DocumentKind.fromFileName('foto.JPG'), DocumentKind.image);
   });
 
   test('devuelve null para formatos no soportados', () {

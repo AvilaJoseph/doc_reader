@@ -191,6 +191,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readerSearchNext => 'Next';
 
   @override
+  String get readerNavigate => 'Navigate';
+
+  @override
+  String get readerPages => 'Pages';
+
+  @override
+  String get readerOutline => 'Contents';
+
+  @override
   String get readerGo => 'Go';
 
   @override

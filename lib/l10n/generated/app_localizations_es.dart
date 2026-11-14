@@ -191,6 +191,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get readerSearchNext => 'Siguiente';
 
   @override
+  String get readerNavigate => 'Navegar';
+
+  @override
+  String get readerPages => 'Páginas';
+
+  @override
+  String get readerOutline => 'Índice';
+
+  @override
   String get readerGo => 'Ir';
 
   @override

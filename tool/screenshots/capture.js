@@ -35,6 +35,8 @@ const hl = [
     ['reader-xlsx','/reader/x','light',{}],
     ['reader-docx-search','/reader/w','light',{},{search:'lectura'}],
     ['reader-pdf-search','/reader/p','light',{},{search:'pantalla'}],
+    ['reader-pdf-nav','/reader/p','light',{},{tap:[218,801]}],
+    ['reader-pdf-outline','/reader/p','light',{},{tap:[[218,801],[154,230]]}],
     ['reader-pdf-select','/reader/p','light',{},{longPress:[150,290]}],
     ['reader-docx-select','/reader/w','light',{},{longPress:[150,500], dragTo:[200,560]}],
     ['highlights','/highlights','light',{}],
@@ -55,6 +57,13 @@ const hl = [
     }, [docs,hl,extra]);
     await page.goto('http://localhost:8099/#'+route);
     await page.waitForTimeout(9000);
+    if (act && act.tap) {
+      const taps = Array.isArray(act.tap[0]) ? act.tap : [act.tap];
+      for (const [tx, ty] of taps) {
+        await page.mouse.click(tx, ty);
+        await page.waitForTimeout(2500);
+      }
+    }
     if (act && act.longPress) {
       // Pulsación larga táctil (CDP) para ver la selección y sus asas.
       const cdp = await ctx.newCDPSession(page);

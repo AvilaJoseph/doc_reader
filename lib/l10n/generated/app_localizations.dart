@@ -416,6 +416,24 @@ abstract class AppLocalizations {
   /// **'Siguiente'**
   String get readerSearchNext;
 
+  /// No description provided for @readerNavigate.
+  ///
+  /// In es, this message translates to:
+  /// **'Navegar'**
+  String get readerNavigate;
+
+  /// No description provided for @readerPages.
+  ///
+  /// In es, this message translates to:
+  /// **'Páginas'**
+  String get readerPages;
+
+  /// No description provided for @readerOutline.
+  ///
+  /// In es, this message translates to:
+  /// **'Índice'**
+  String get readerOutline;
+
   /// No description provided for @readerGo.
   ///
   /// In es, this message translates to:

@@ -86,7 +86,14 @@ for i,(t,p) in enumerate(chapters):
     if i: story.append(PageBreak())
     story.append(Paragraph(t, h2))
     for _ in range(3): story.append(Paragraph(p, body)); story.append(Spacer(1,8))
-SimpleDocTemplate(f'{out}/guia.pdf', pagesize=A5, title='Guía de lectura', leftMargin=40, rightMargin=40).build(story)
+class _GuideDoc(SimpleDocTemplate):
+    # Añade cada capítulo al índice (marcadores) del PDF.
+    def afterFlowable(self, flowable):
+        if isinstance(flowable, Paragraph) and flowable.style.name == 'h2':
+            key = f'c{self.page}'
+            self.canv.bookmarkPage(key)
+            self.canv.addOutlineEntry(flowable.getPlainText(), key, level=0)
+_GuideDoc(f'{out}/guia.pdf', pagesize=A5, title='Guía de lectura', leftMargin=40, rightMargin=40).build(story)
 
 open(f'{out}/notas.md','w').write('''# Notas de ideas
 

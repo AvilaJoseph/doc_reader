@@ -2,6 +2,7 @@ import 'package:doc_reader/core/theme/app_theme.dart';
 import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/core/widgets/circle_icon_button.dart';
 import 'package:doc_reader/l10n/l10n.dart';
+import 'package:flutter/foundation.dart';
 
 /// Botón extra de la barra superior (modo noche, bloqueo de giro…).
 @immutable
@@ -30,6 +31,7 @@ class ReaderTopBar extends StatelessWidget {
     required this.muted,
     super.key,
     this.subtitle,
+    this.liveSubtitle,
     this.onBack,
     this.onMore,
     this.actions = const [],
@@ -37,6 +39,7 @@ class ReaderTopBar extends StatelessWidget {
 
   final String title;
   final String? subtitle;
+  final ValueListenable<String>? liveSubtitle;
   final Color background;
   final Color foreground;
   final Color muted;
@@ -80,7 +83,15 @@ class ReaderTopBar extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: textTheme.titleSmall?.copyWith(color: foreground),
                     ),
-                    if (subtitle != null)
+                    if (liveSubtitle case final live?)
+                      ValueListenableBuilder<String>(
+                        valueListenable: live,
+                        builder: (context, value, _) => Text(
+                          value,
+                          style: textTheme.labelSmall?.copyWith(color: muted),
+                        ),
+                      )
+                    else if (subtitle != null)
                       Text(
                         subtitle!,
                         style: textTheme.labelSmall?.copyWith(color: muted),

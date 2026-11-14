@@ -18,6 +18,7 @@ import 'package:doc_reader/features/reader/presentation/widgets/reader_states.da
 import 'package:doc_reader/features/reader/presentation/widgets/reader_top_bar.dart';
 import 'package:doc_reader/features/settings/application/settings_controller.dart';
 import 'package:doc_reader/l10n/l10n.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pdfrx/pdfrx.dart';
@@ -48,6 +49,10 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
   final _controller = PdfViewerController();
   Timer? _saveTimer;
   int _page = 1;
+
+  /// Página actual para la barra y la píldora: cambiarla no reconstruye
+  /// el visor, solo esos dos textos.
+  late final _pageNotifier = ValueNotifier(_page);
   int _pageCount = 0;
 
   /// Marcas del documento por página (se actualiza en cada build).
@@ -197,12 +202,14 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
   void dispose() {
     _saveTimer?.cancel();
     _save();
+    _pageNotifier.dispose();
     super.dispose();
   }
 
   void _onPageChanged(int? page) {
     if (page == null || page == _page) return;
-    setState(() => _page = page);
+    _page = page;
+    _pageNotifier.value = page;
     _saveTimer?.cancel();
     _saveTimer = Timer(const Duration(milliseconds: 600), _save);
   }
@@ -284,9 +291,7 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
 
     return ReaderScaffold(
       title: widget.document.title,
-      subtitle: _pageCount == 0
-          ? null
-          : context.l10n.readerPageOf(_page, _pageCount),
+      liveSubtitle: _pageCount == 0 ? null : _pageLabel,
       background: background,
       foreground: foreground,
       muted: muted,
@@ -306,35 +311,63 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
       body: viewer,
       bottomPill: _pageCount == 0
           ? null
-          : FloatingPill(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  PillButton(
-                    icon: Icons.chevron_left_rounded,
-                    tooltip: MaterialLocalizations.of(context)
-                        .previousPageTooltip,
-                    onPressed: _page > 1 ? () => _goTo(_page - 1) : null,
-                  ),
-                  PillButton(
-                    icon: Icons.menu_book_outlined,
-                    label: context.l10n.readerPageOf(_page, _pageCount),
-                    tooltip: context.l10n.readerGoToPage,
-                    selected: true,
-                    onPressed: _askPage,
-                  ),
-                  PillButton(
-                    icon: Icons.chevron_right_rounded,
-                    tooltip: MaterialLocalizations.of(context).nextPageTooltip,
-                    onPressed: _page < _pageCount
-                        ? () => _goTo(_page + 1)
-                        : null,
-                  ),
-                ],
-              ),
+          : ValueListenableBuilder<int>(
+              valueListenable: _pageNotifier,
+              builder: (context, _, _) => _pagePill(context),
             ),
     );
   }
+
+  /// Etiqueta "N de M" derivada de [_pageNotifier].
+  late final ValueListenable<String> _pageLabel = _MappedListenable(
+    _pageNotifier,
+    (page) => context.l10n.readerPageOf(page, _pageCount),
+  );
+
+  Widget _pagePill(BuildContext context) {
+    return FloatingPill(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          PillButton(
+            icon: Icons.chevron_left_rounded,
+            tooltip: MaterialLocalizations.of(context).previousPageTooltip,
+            onPressed: _page > 1 ? () => _goTo(_page - 1) : null,
+          ),
+          PillButton(
+            icon: Icons.menu_book_outlined,
+            label: context.l10n.readerPageOf(_page, _pageCount),
+            tooltip: context.l10n.readerGoToPage,
+            selected: true,
+            onPressed: _askPage,
+          ),
+          PillButton(
+            icon: Icons.chevron_right_rounded,
+            tooltip: MaterialLocalizations.of(context).nextPageTooltip,
+            onPressed: _page < _pageCount ? () => _goTo(_page + 1) : null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Transforma un [ValueListenable] sin crear estado extra.
+class _MappedListenable<T, R> implements ValueListenable<R> {
+  new(this._source, this._map);
+
+  final ValueListenable<T> _source;
+  final R Function(T value) _map;
+
+  @override
+  R get value => _map(_source.value);
+
+  @override
+  void addListener(VoidCallback listener) => _source.addListener(listener);
+
+  @override
+  void removeListener(VoidCallback listener) =>
+      _source.removeListener(listener);
 }
 
 class _GoToPageDialog extends StatefulWidget {

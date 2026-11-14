@@ -143,6 +143,7 @@ class LibraryController extends AsyncNotifier<List<LibraryDocument>> {
   Future<void> purge(LibraryDocument doc) async {
     if (byId(doc.id) != null) return;
     await ref.read(documentFileStoreProvider).delete(doc.source);
+    await ref.read(coverCacheProvider).remove(doc.id);
   }
 
   Future<void> _update(

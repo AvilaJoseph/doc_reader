@@ -3,6 +3,7 @@ import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_top_bar.dart';
 import 'package:doc_reader/features/settings/application/settings_controller.dart';
 import 'package:doc_reader/l10n/l10n.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Estructura común de los visores: barra superior, contenido y una
@@ -17,17 +18,24 @@ class ReaderScaffold extends ConsumerWidget {
     required this.muted,
     super.key,
     this.subtitle,
+    this.liveSubtitle,
     this.bottomPill,
-    this.pillVisible = true,
+    this.pillVisible,
     this.onMore,
     this.actions = const [],
   });
 
   final String title;
   final String? subtitle;
+
+  /// Subtítulo que cambia a menudo (p. ej. % leído). Solo se redibuja el
+  /// texto, no el visor entero.
+  final ValueListenable<String>? liveSubtitle;
   final Widget body;
   final Widget? bottomPill;
-  final bool pillVisible;
+
+  /// Muestra u oculta la píldora sin reconstruir el contenido.
+  final ValueListenable<bool>? pillVisible;
   final Color background;
   final Color foreground;
   final Color muted;
@@ -49,6 +57,7 @@ class ReaderScaffold extends ConsumerWidget {
           ReaderTopBar(
             title: title,
             subtitle: subtitle,
+            liveSubtitle: liveSubtitle,
             background: background,
             foreground: foreground,
             muted: muted,
@@ -82,13 +91,11 @@ class ReaderScaffold extends ConsumerWidget {
                       top: false,
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                        child: AnimatedSlide(
-                          offset: pillVisible
-                              ? Offset.zero
-                              : const Offset(0, 1.6),
-                          duration: const Duration(milliseconds: 260),
-                          curve: Curves.easeOutCubic,
-                          child: Center(child: bottomPill),
+                        child: RepaintBoundary(
+                          child: _PillSlot(
+                            visible: pillVisible,
+                            child: Center(child: bottomPill),
+                          ),
                         ),
                       ),
                     ),
@@ -97,6 +104,30 @@ class ReaderScaffold extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Desliza la píldora fuera de la pantalla al bajar leyendo.
+class _PillSlot extends StatelessWidget {
+  const new({required this.visible, required this.child});
+
+  final ValueListenable<bool>? visible;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final listenable = visible;
+    if (listenable == null) return child;
+    return ValueListenableBuilder<bool>(
+      valueListenable: listenable,
+      child: child,
+      builder: (context, visible, child) => AnimatedSlide(
+        offset: visible ? Offset.zero : const Offset(0, 1.6),
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+        child: child,
       ),
     );
   }

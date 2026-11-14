@@ -2,10 +2,10 @@ import 'package:doc_reader/core/theme/app_colors.dart';
 import 'package:doc_reader/core/theme/app_theme.dart';
 import 'package:doc_reader/core/theme/app_typography.dart';
 import 'package:doc_reader/core/ui.dart';
+import 'package:doc_reader/features/library/application/library_providers.dart';
 import 'package:doc_reader/features/library/domain/document_kind.dart';
-import 'package:doc_reader/features/library/domain/document_source.dart';
 import 'package:doc_reader/features/library/domain/library_document.dart';
-import 'package:pdfrx/pdfrx.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 extension DocumentKindStyle on DocumentKind {
   Color get accent => switch (this) {
@@ -81,37 +81,30 @@ class DocumentCover extends StatelessWidget {
   }
 }
 
-class _PdfFirstPage extends StatelessWidget {
+/// Primera página del PDF desde la caché de miniaturas; mientras se genera
+/// (solo la primera vez) se ve la portada tipográfica.
+class _PdfFirstPage extends ConsumerWidget {
   const new({required this.document, required this.fallback});
 
   final LibraryDocument document;
   final Widget fallback;
 
   @override
-  Widget build(BuildContext context) {
-    Widget builder(BuildContext context, PdfDocument? pdf) {
-      if (pdf == null) return fallback;
-      return ColoredBox(
-        color: Colors.white,
-        child: PdfPageView(
-          document: pdf,
-          pageNumber: 1,
-          maximumDpi: 96,
-          alignment: Alignment.topCenter,
-        ),
-      );
-    }
-
-    return switch (document.source) {
-      FileSource(:final path) => PdfDocumentViewBuilder.file(
-        path,
-        builder: builder,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cover = ref
+        .watch(pdfCoverProvider((document.id, document.source)))
+        .value;
+    if (cover == null) return fallback;
+    return ColoredBox(
+      color: Colors.white,
+      child: Image.memory(
+        cover,
+        fit: BoxFit.cover,
+        alignment: Alignment.topCenter,
+        gaplessPlayback: true,
+        errorBuilder: (_, _, _) => fallback,
       ),
-      AssetSource(:final assetPath) => PdfDocumentViewBuilder.asset(
-        assetPath,
-        builder: builder,
-      ),
-    };
+    );
   }
 }
 

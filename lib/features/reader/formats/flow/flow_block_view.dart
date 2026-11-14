@@ -310,12 +310,21 @@ class _FlowImage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
-        child: Image.memory(
-          image.bytes,
-          fit: BoxFit.contain,
-          semanticLabel: image.description,
-          gaplessPlayback: true,
-          errorBuilder: (_, _, _) => const SizedBox.shrink(),
+        child: LayoutBuilder(
+          // Decodifica al ancho de la columna, no al tamaño original: una
+          // foto de 12 MP ocuparía ~48 MB de memoria y frenaría el scroll.
+          builder: (context, constraints) => Image.memory(
+            image.bytes,
+            cacheWidth: constraints.maxWidth.isFinite
+                ? (constraints.maxWidth *
+                          MediaQuery.devicePixelRatioOf(context))
+                      .round()
+                : null,
+            fit: BoxFit.contain,
+            semanticLabel: image.description,
+            gaplessPlayback: true,
+            errorBuilder: (_, _, _) => const SizedBox.shrink(),
+          ),
         ),
       ),
     );

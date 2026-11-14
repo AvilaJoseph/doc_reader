@@ -24,7 +24,7 @@ const hl = [
 (async () => {
   const which = process.argv.slice(2);
   const browser = await chromium.launch();
-  for (const [name, route, scheme, extra] of [
+  for (const [name, route, scheme, extra, act] of [
     ['library-light','/library','light',{}],
     ['library-dark','/library','dark',{}],
     ['reader-docx','/reader/w','light',{}],
@@ -33,12 +33,16 @@ const hl = [
     ['reader-pdf','/reader/p','light',{}],
     ['reader-pdf-night','/reader/p','light',{'flutter.settings.pdfNightMode':true,'flutter.settings.lockRotation':true}],
     ['reader-xlsx','/reader/x','light',{}],
+    ['reader-docx-search','/reader/w','light',{},{search:'lectura'}],
+    ['reader-pdf-search','/reader/p','light',{},{search:'pantalla'}],
+    ['reader-pdf-select','/reader/p','light',{},{longPress:[150,290]}],
+    ['reader-docx-select','/reader/w','light',{},{longPress:[150,500]}],
     ['highlights','/highlights','light',{}],
     ['settings','/settings','light',{}],
     ['empty','/library','light',{empty:true}],
   ]) {
     if (which.length && !which.includes(name)) continue;
-    const ctx = await browser.newContext({viewport:{width:390,height:844}, deviceScaleFactor:2, colorScheme:scheme, locale:'es-ES'});
+    const ctx = await browser.newContext({viewport:{width:390,height:844}, deviceScaleFactor:2, colorScheme:scheme, locale:'es-ES', hasTouch: !!(act && act.longPress)});
     const page = await ctx.newPage();
     page.on('console', m => { if (m.type()==='error') console.log(name, 'console:', m.text().slice(0,200)); });
     await page.addInitScript(([docs,hl,extra]) => {
@@ -51,6 +55,25 @@ const hl = [
     }, [docs,hl,extra]);
     await page.goto('http://localhost:8099/#'+route);
     await page.waitForTimeout(9000);
+    if (act && act.longPress) {
+      // Pulsación larga táctil (CDP) para ver la selección y sus asas.
+      const cdp = await ctx.newCDPSession(page);
+      const [x, y] = act.longPress;
+      const touch = (type, pts) => cdp.send('Input.dispatchTouchEvent', {type, touchPoints: pts});
+      await touch('touchStart', [{x, y}]);
+      await page.waitForTimeout(900);
+      await touch('touchEnd', []);
+      await page.waitForTimeout(1500);
+    }
+    if (act && act.search) {
+      // Toca el botón de búsqueda de la píldora (el primero) y escribe.
+      const box = await page.evaluate(() => [innerWidth, innerHeight]);
+      const pillButtons = route.includes('/p') ? 4 : 3;
+      await page.mouse.click(box[0] / 2 - (pillButtons - 1) * 34, box[1] - 44);
+      await page.waitForTimeout(800);
+      await page.keyboard.type(act.search, {delay: 40});
+      await page.waitForTimeout(2500);
+    }
     await page.screenshot({path: path.join(outDir, `${name}.png`)});
     await ctx.close();
   }

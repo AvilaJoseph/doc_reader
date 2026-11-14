@@ -92,6 +92,18 @@
   "readerDayMode": "Modo día",
   "readerLockRotation": "Bloquear giro",
   "readerUnlockRotation": "Permitir giro",
+  "readerSearch": "Buscar en el documento",
+  "readerSearchHint": "Buscar…",
+  "readerSearchCount": "{current} de {total}",
+  "@readerSearchCount": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "readerSearchNone": "Sin resultados",
+  "readerSearchPrevious": "Anterior",
+  "readerSearchNext": "Siguiente",
   "readerGo": "Ir",
   "readerAppearance": "Lectura",
   "readerTextSize": "Tamaño de letra",

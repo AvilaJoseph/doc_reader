@@ -44,6 +44,10 @@ abstract final class AppColors {
   /// Color de la línea de "Subrayar".
   static const Color underline = Color(0xFF2F7CF6);
 
+  /// Coincidencias de búsqueda y la coincidencia actual (más intensa).
+  static const Color searchMatch = Color(0x55FFB020);
+  static const Color searchCurrent = Color(0xCCFF9500);
+
   /// Subrayado sobre fondos oscuros (más claro para que se vea).
   static const Color underlineNight = Color(0xFF6EA8FF);
 

@@ -13,7 +13,9 @@ import 'package:doc_reader/features/reader/application/document_providers.dart';
 import 'package:doc_reader/features/reader/formats/flow/flow_block_view.dart';
 import 'package:doc_reader/features/reader/formats/flow/flow_document.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_scaffold.dart';
+import 'package:doc_reader/features/reader/presentation/widgets/reader_search_bar.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_states.dart';
+import 'package:doc_reader/features/reader/search/text_search.dart';
 import 'package:doc_reader/features/settings/application/settings_controller.dart';
 import 'package:doc_reader/features/settings/presentation/reading_controls.dart';
 import 'package:doc_reader/l10n/l10n.dart';
@@ -52,6 +54,19 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
   bool _restored = false;
   late final LibraryController _library;
 
+  // Búsqueda dentro del documento.
+  final _searchText = TextEditingController();
+  bool _searchOpen = false;
+  Timer? _searchTimer;
+  SearchIndex? _searchIndex;
+  List<SearchMatch> _matches = const [];
+  int _currentMatch = 0;
+  Map<int, List<TextRange>> _hitsByBlock = const {};
+
+  /// Bloque al que se quiere llegar; lleva [_targetKey] para encontrarlo.
+  int? _targetBlock;
+  final _targetKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -70,6 +85,8 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
       ..removeListener(_onScroll)
       ..dispose();
     _percent.dispose();
+    _searchTimer?.cancel();
+    _searchText.dispose();
     _pillVisible.dispose();
     super.dispose();
   }
@@ -128,66 +145,177 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
     return false;
   }
 
+  void _openSearch() => setState(() => _searchOpen = true);
+
+  void _closeSearch() {
+    _searchTimer?.cancel();
+    _searchText.clear();
+    setState(() {
+      _searchOpen = false;
+      _matches = const [];
+      _hitsByBlock = const {};
+      _targetBlock = null;
+    });
+  }
+
+  void _onQueryChanged(String query) {
+    _searchTimer?.cancel();
+    _searchTimer = Timer(
+      const Duration(milliseconds: 150),
+      () => _runSearch(query),
+    );
+  }
+
+  void _runSearch(String query) {
+    final flow = ref.read(flowDocumentProvider(widget.document.id)).value;
+    if (flow == null || !mounted) return;
+    final index = _searchIndex ??= SearchIndex([
+      for (final block in flow.blocks)
+        if (block is ParagraphBlock) block.plainText else '',
+    ]);
+    final matches = index.find(query);
+    final hits = <int, List<TextRange>>{};
+    for (final m in matches) {
+      (hits[m.blockIndex] ??= []).add(TextRange(start: m.start, end: m.end));
+    }
+    // Empieza por el primer resultado desde donde se está leyendo.
+    final here = (_progress * flow.blocks.length).floor();
+    final first = matches.indexWhere((m) => m.blockIndex >= here);
+    setState(() {
+      _matches = matches;
+      _hitsByBlock = hits;
+      _currentMatch = first < 0 ? 0 : first;
+    });
+    if (matches.isNotEmpty) _goToMatch(flow.blocks.length);
+  }
+
+  void _step(int delta) {
+    final count = ref
+        .read(flowDocumentProvider(widget.document.id))
+        .value
+        ?.blocks
+        .length;
+    if (_matches.isEmpty || count == null) return;
+    setState(() {
+      _currentMatch = (_currentMatch + delta) % _matches.length;
+    });
+    _goToMatch(count);
+  }
+
+  void _goToMatch(int blockCount) {
+    final block = _matches[_currentMatch].blockIndex;
+    setState(() => _targetBlock = block);
+    _scrollToBlock(block, blockCount);
+  }
+
+  /// Lleva [block] a la vista. La lista es perezosa: si el bloque aún no
+  /// existe se salta a una posición estimada y se reintenta un frame después.
+  void _scrollToBlock(int block, int blockCount, [int attempt = 0]) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scroll.hasClients || _targetBlock != block) return;
+      final target = _targetKey.currentContext;
+      if (target != null) {
+        Scrollable.ensureVisible(target, alignment: 0.3);
+        return;
+      }
+      if (attempt >= 6) return;
+      final position = _scroll.position;
+      _scroll.jumpTo(
+        (block / blockCount * position.maxScrollExtent).clamp(
+          0,
+          position.maxScrollExtent,
+        ),
+      );
+      _scrollToBlock(block, blockCount, attempt + 1);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsControllerProvider);
     final theme = settings.readingTheme;
     final flow = ref.watch(flowDocumentProvider(widget.document.id));
 
-    return Theme(
-      data: Theme.of(context).copyWith(
-        textSelectionTheme: const TextSelectionThemeData(
-          selectionColor: AppColors.selection,
-          selectionHandleColor: AppColors.selectionHandle,
-          cursorColor: AppColors.selectionHandle,
-        ),
-      ),
-      child: ReaderScaffold(
-        title: widget.document.title,
-        liveSubtitle: _percent,
-        background: theme.background,
-        foreground: theme.ink,
-        muted: theme.muted,
-        onMore: widget.onMore,
-        pillVisible: _pillVisible,
-        bottomPill: FloatingPill(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              PillButton(
-                icon: Icons.text_fields_rounded,
-                label: context.l10n.readerAppearance,
-                onPressed: () => showReadingSettingsSheet(context),
-              ),
-              PillButton(
-                icon: switch (theme.next.brightness) {
-                  Brightness.dark => Icons.dark_mode_outlined,
-                  Brightness.light => Icons.light_mode_outlined,
-                },
-                tooltip: context.l10n.readerAmbience,
-                onPressed: () => ref
-                    .read(settingsControllerProvider.notifier)
-                    .setReadingTheme(theme.next),
-              ),
-            ],
+    // Con la búsqueda abierta, "atrás" la cierra en vez de salir.
+    return PopScope(
+      canPop: !_searchOpen,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _closeSearch();
+      },
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          textSelectionTheme: const TextSelectionThemeData(
+            selectionColor: AppColors.selection,
+            selectionHandleColor: AppColors.selectionHandle,
+            cursorColor: AppColors.selectionHandle,
           ),
         ),
-        body: switch (flow) {
-          AsyncData(:final value) => _content(
-            value,
-            FlowReadingStyle(
-              theme: theme,
-              fontSize: settings.fontSize,
-              lineHeight: settings.lineHeight,
+        child: ReaderScaffold(
+          title: widget.document.title,
+          liveSubtitle: _percent,
+          background: theme.background,
+          foreground: theme.ink,
+          muted: theme.muted,
+          onMore: widget.onMore,
+          searchBar: _searchOpen
+              ? ReaderSearchBar(
+                  controller: _searchText,
+                  background: theme.background,
+                  foreground: theme.ink,
+                  muted: theme.muted,
+                  current: _currentMatch,
+                  total: _matches.length,
+                  onChanged: _onQueryChanged,
+                  onNext: () => _step(1),
+                  onPrevious: () => _step(-1),
+                  onClose: _closeSearch,
+                )
+              : null,
+          pillVisible: _pillVisible,
+          bottomPill: FloatingPill(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                PillButton(
+                  icon: Icons.search_rounded,
+                  tooltip: context.l10n.readerSearch,
+                  onPressed: _openSearch,
+                ),
+                PillButton(
+                  icon: Icons.text_fields_rounded,
+                  label: context.l10n.readerAppearance,
+                  onPressed: () => showReadingSettingsSheet(context),
+                ),
+                PillButton(
+                  icon: switch (theme.next.brightness) {
+                    Brightness.dark => Icons.dark_mode_outlined,
+                    Brightness.light => Icons.light_mode_outlined,
+                  },
+                  tooltip: context.l10n.readerAmbience,
+                  onPressed: () => ref
+                      .read(settingsControllerProvider.notifier)
+                      .setReadingTheme(theme.next),
+                ),
+              ],
             ),
           ),
-          AsyncError(:final error) => ReaderError(
-            error: error,
-            onRetry: () =>
-                ref.invalidate(flowDocumentProvider(widget.document.id)),
-          ),
-          _ => ReaderLoading(color: theme.muted),
-        },
+          body: switch (flow) {
+            AsyncData(:final value) => _content(
+              value,
+              FlowReadingStyle(
+                theme: theme,
+                fontSize: settings.fontSize,
+                lineHeight: settings.lineHeight,
+              ),
+            ),
+            AsyncError(:final error) => ReaderError(
+              error: error,
+              onRetry: () =>
+                  ref.invalidate(flowDocumentProvider(widget.document.id)),
+            ),
+            _ => ReaderLoading(color: theme.muted),
+          },
+        ),
       ),
     );
   }
@@ -240,7 +368,18 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
           itemCount: flow.blocks.length,
           itemBuilder: (context, index) {
             final block = flow.blocks[index];
+            final hits = _hitsByBlock[index] ?? const <TextRange>[];
+            int? currentHit;
+            if (hits.isNotEmpty) {
+              final current = _matches[_currentMatch];
+              if (current.blockIndex == index) {
+                currentHit = hits.indexWhere((h) => h.start == current.start);
+              }
+            }
             return FlowBlockView(
+              key: index == _targetBlock ? _targetKey : null,
+              searchHits: hits,
+              currentHit: currentHit,
               block: block,
               blockIndex: index,
               style: style,

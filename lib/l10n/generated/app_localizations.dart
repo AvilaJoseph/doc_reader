@@ -380,6 +380,42 @@ abstract class AppLocalizations {
   /// **'Permitir giro'**
   String get readerUnlockRotation;
 
+  /// No description provided for @readerSearch.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar en el documento'**
+  String get readerSearch;
+
+  /// No description provided for @readerSearchHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar…'**
+  String get readerSearchHint;
+
+  /// No description provided for @readerSearchCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{current} de {total}'**
+  String readerSearchCount(int current, int total);
+
+  /// No description provided for @readerSearchNone.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin resultados'**
+  String get readerSearchNone;
+
+  /// No description provided for @readerSearchPrevious.
+  ///
+  /// In es, this message translates to:
+  /// **'Anterior'**
+  String get readerSearchPrevious;
+
+  /// No description provided for @readerSearchNext.
+  ///
+  /// In es, this message translates to:
+  /// **'Siguiente'**
+  String get readerSearchNext;
+
   /// No description provided for @readerGo.
   ///
   /// In es, this message translates to:

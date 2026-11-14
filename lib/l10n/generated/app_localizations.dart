@@ -707,7 +707,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsFormatsBody.
   ///
   /// In es, this message translates to:
-  /// **'PDF, Word (.docx), Excel (.xlsx), CSV, TXT, Markdown e imágenes (JPG, PNG, WebP).'**
+  /// **'PDF, Word (.docx, .rtf), Excel (.xlsx), CSV, TXT, Markdown e imágenes (JPG, PNG, WebP).'**
   String get settingsFormatsBody;
 
   /// No description provided for @annotationUnderline.

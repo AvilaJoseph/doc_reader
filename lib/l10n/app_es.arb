@@ -171,7 +171,7 @@
   "settingsPrivacyTitle": "Sin anuncios ni rastreo",
   "settingsPrivacyBody": "Folio no muestra publicidad ni recopila datos. Tus documentos se quedan en tu dispositivo.",
   "settingsFormatsTitle": "Formatos compatibles",
-  "settingsFormatsBody": "PDF, Word (.docx), Excel (.xlsx), CSV, TXT, Markdown e imágenes (JPG, PNG, WebP).",
+  "settingsFormatsBody": "PDF, Word (.docx, .rtf), Excel (.xlsx), CSV, TXT, Markdown e imágenes (JPG, PNG, WebP).",
   "annotationUnderline": "Subrayar",
   "annotationNote": "Nota",
   "annotationNoteHint": "Escribe tu nota…",

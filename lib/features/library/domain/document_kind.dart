@@ -7,7 +7,7 @@ import 'package:path/path.dart' as p;
 /// Ver `.claude/skills/add-document-format/SKILL.md`.
 enum DocumentKind {
   pdf(extensions: {'pdf'}),
-  word(extensions: {'docx'}),
+  word(extensions: {'docx', 'rtf'}),
   spreadsheet(extensions: {'xlsx', 'csv', 'tsv'}),
   text(extensions: {'txt', 'md', 'markdown', 'text', 'log'}),
   image(extensions: {'jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'});

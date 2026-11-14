@@ -33,6 +33,8 @@
                 <data android:mimeType="text/csv"/>
                 <data android:mimeType="text/comma-separated-values"/>
                 <data android:mimeType="text/plain"/>
+                <data android:mimeType="application/rtf"/>
+                <data android:mimeType="text/rtf"/>
                 <data android:mimeType="text/markdown"/>
                 <data android:mimeType="text/x-markdown"/>
             </intent-filter>
@@ -46,6 +48,8 @@
                 <data android:mimeType="text/csv"/>
                 <data android:mimeType="text/comma-separated-values"/>
                 <data android:mimeType="text/plain"/>
+                <data android:mimeType="application/rtf"/>
+                <data android:mimeType="text/rtf"/>
                 <data android:mimeType="text/markdown"/>
                 <data android:mimeType="text/x-markdown"/>
             </intent-filter>

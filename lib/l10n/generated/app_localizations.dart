@@ -356,6 +356,30 @@ abstract class AppLocalizations {
   /// **'Ir a la página'**
   String get readerGoToPage;
 
+  /// No description provided for @readerNightMode.
+  ///
+  /// In es, this message translates to:
+  /// **'Modo noche'**
+  String get readerNightMode;
+
+  /// No description provided for @readerDayMode.
+  ///
+  /// In es, this message translates to:
+  /// **'Modo día'**
+  String get readerDayMode;
+
+  /// No description provided for @readerLockRotation.
+  ///
+  /// In es, this message translates to:
+  /// **'Bloquear giro'**
+  String get readerLockRotation;
+
+  /// No description provided for @readerUnlockRotation.
+  ///
+  /// In es, this message translates to:
+  /// **'Permitir giro'**
+  String get readerUnlockRotation;
+
   /// No description provided for @readerGo.
   ///
   /// In es, this message translates to:

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:doc_reader/core/theme/app_colors.dart';
+import 'package:doc_reader/core/theme/reading_theme.dart';
 import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/core/widgets/floating_pill.dart';
 import 'package:doc_reader/features/highlights/application/highlights_controller.dart';
@@ -10,10 +11,14 @@ import 'package:doc_reader/features/highlights/presentation/annotation_toolbar.d
 import 'package:doc_reader/features/library/application/library_controller.dart';
 import 'package:doc_reader/features/library/domain/document_source.dart';
 import 'package:doc_reader/features/library/domain/library_document.dart';
+import 'package:doc_reader/features/reader/formats/pdf/pdf_night_filter.dart';
 import 'package:doc_reader/features/reader/formats/pdf/pdf_text_lines.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_scaffold.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_states.dart';
+import 'package:doc_reader/features/reader/presentation/widgets/reader_top_bar.dart';
+import 'package:doc_reader/features/settings/application/settings_controller.dart';
 import 'package:doc_reader/l10n/l10n.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pdfrx/pdfrx.dart';
@@ -44,10 +49,17 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
   final _controller = PdfViewerController();
   Timer? _saveTimer;
   int _page = 1;
+
+  /// Página actual para la barra y la píldora: cambiarla no reconstruye
+  /// el visor, solo esos dos textos.
+  late final _pageNotifier = ValueNotifier(_page);
   int _pageCount = 0;
 
   /// Marcas del documento por página (se actualiza en cada build).
   Map<int, List<Highlight>> _highlights = const {};
+
+  /// Modo noche: páginas invertidas y fondo oscuro.
+  bool _night = false;
 
   /// Fragmentos de la selección actual, calculados al cambiar la selección.
   List<HighlightDraft> _selection = const [];
@@ -178,6 +190,7 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
                     ),
               ],
               strokeWidth: (1.6 * scale).clamp(1.2, 3.5),
+              night: _night,
             ),
           ),
         ),
@@ -189,12 +202,14 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
   void dispose() {
     _saveTimer?.cancel();
     _save();
+    _pageNotifier.dispose();
     super.dispose();
   }
 
   void _onPageChanged(int? page) {
     if (page == null || page == _page) return;
-    setState(() => _page = page);
+    _page = page;
+    _pageNotifier.value = page;
     _saveTimer?.cancel();
     _saveTimer = Timer(const Duration(milliseconds: 600), _save);
   }
@@ -228,8 +243,14 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
   @override
   Widget build(BuildContext context) {
     _highlights = ref.watch(documentHighlightsProvider(widget.document.id));
+    _night = ref.watch(
+      settingsControllerProvider.select((s) => s.pdfNightMode),
+    );
     final scheme = Theme.of(context).colorScheme;
-    final background = scheme.surfaceContainerHigh;
+    const night = ReadingTheme.night;
+    final background = _night ? night.background : scheme.surfaceContainerHigh;
+    final foreground = _night ? night.ink : scheme.onSurface;
+    final muted = _night ? night.muted : scheme.onSurfaceVariant;
     final params = PdfViewerParams(
       textSelectionParams: PdfTextSelectionParams(
         onTextSelectionChange: _onSelectionChanged,
@@ -237,6 +258,7 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
       buildContextMenu: _buildContextMenu,
       pageOverlaysBuilder: _buildPageOverlays,
       backgroundColor: background,
+      pageImageColorFilter: _night ? pdfNightFilter : null,
       margin: 10,
       pageDropShadow: BoxShadow(
         color: Colors.black.withValues(alpha: 0.12),
@@ -247,8 +269,7 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
         setState(() => _pageCount = document.pages.length);
       },
       onPageChanged: _onPageChanged,
-      loadingBannerBuilder: (context, _, _) =>
-          ReaderLoading(color: scheme.onSurfaceVariant),
+      loadingBannerBuilder: (context, _, _) => ReaderLoading(color: muted),
       errorBannerBuilder: (context, error, _, _) => ReaderError(error: error),
     );
     final initialPage = _initialPage;
@@ -270,45 +291,83 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
 
     return ReaderScaffold(
       title: widget.document.title,
-      subtitle: _pageCount == 0
-          ? null
-          : context.l10n.readerPageOf(_page, _pageCount),
+      liveSubtitle: _pageCount == 0 ? null : _pageLabel,
       background: background,
-      foreground: scheme.onSurface,
-      muted: scheme.onSurfaceVariant,
+      foreground: foreground,
+      muted: muted,
       onMore: widget.onMore,
+      actions: [
+        ReaderBarAction(
+          icon: _night ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+          tooltip: _night
+              ? context.l10n.readerDayMode
+              : context.l10n.readerNightMode,
+          active: _night,
+          onPressed: () => ref
+              .read(settingsControllerProvider.notifier)
+              .setPdfNightMode(enabled: !_night),
+        ),
+      ],
       body: viewer,
       bottomPill: _pageCount == 0
           ? null
-          : FloatingPill(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  PillButton(
-                    icon: Icons.chevron_left_rounded,
-                    tooltip: MaterialLocalizations.of(context)
-                        .previousPageTooltip,
-                    onPressed: _page > 1 ? () => _goTo(_page - 1) : null,
-                  ),
-                  PillButton(
-                    icon: Icons.menu_book_outlined,
-                    label: context.l10n.readerPageOf(_page, _pageCount),
-                    tooltip: context.l10n.readerGoToPage,
-                    selected: true,
-                    onPressed: _askPage,
-                  ),
-                  PillButton(
-                    icon: Icons.chevron_right_rounded,
-                    tooltip: MaterialLocalizations.of(context).nextPageTooltip,
-                    onPressed: _page < _pageCount
-                        ? () => _goTo(_page + 1)
-                        : null,
-                  ),
-                ],
-              ),
+          : ValueListenableBuilder<int>(
+              valueListenable: _pageNotifier,
+              builder: (context, _, _) => _pagePill(context),
             ),
     );
   }
+
+  /// Etiqueta "N de M" derivada de [_pageNotifier].
+  late final ValueListenable<String> _pageLabel = _MappedListenable(
+    _pageNotifier,
+    (page) => context.l10n.readerPageOf(page, _pageCount),
+  );
+
+  Widget _pagePill(BuildContext context) {
+    return FloatingPill(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          PillButton(
+            icon: Icons.chevron_left_rounded,
+            tooltip: MaterialLocalizations.of(context).previousPageTooltip,
+            onPressed: _page > 1 ? () => _goTo(_page - 1) : null,
+          ),
+          PillButton(
+            icon: Icons.menu_book_outlined,
+            label: context.l10n.readerPageOf(_page, _pageCount),
+            tooltip: context.l10n.readerGoToPage,
+            selected: true,
+            onPressed: _askPage,
+          ),
+          PillButton(
+            icon: Icons.chevron_right_rounded,
+            tooltip: MaterialLocalizations.of(context).nextPageTooltip,
+            onPressed: _page < _pageCount ? () => _goTo(_page + 1) : null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Transforma un [ValueListenable] sin crear estado extra.
+class _MappedListenable<T, R> implements ValueListenable<R> {
+  new(this._source, this._map);
+
+  final ValueListenable<T> _source;
+  final R Function(T value) _map;
+
+  @override
+  R get value => _map(_source.value);
+
+  @override
+  void addListener(VoidCallback listener) => _source.addListener(listener);
+
+  @override
+  void removeListener(VoidCallback listener) =>
+      _source.removeListener(listener);
 }
 
 class _GoToPageDialog extends StatefulWidget {
@@ -363,17 +422,20 @@ class _GoToPageDialogState extends State<_GoToPageDialog> {
 
 /// Pinta resaltados (fondo multiplicado) y subrayados (línea) en una página.
 class _PdfHighlightPainter extends CustomPainter {
-  new({required this.marks, required this.strokeWidth});
+  new({required this.marks, required this.strokeWidth, required this.night});
 
   final List<(Rect, Highlight)> marks;
   final double strokeWidth;
+
+  /// Sobre páginas oscuras multiplicar no se vería: se pinta translúcido.
+  final bool night;
 
   @override
   void paint(Canvas canvas, Size size) {
     for (final (rect, h) in marks) {
       if (h.style == HighlightStyle.underline) {
         final paint = Paint()
-          ..color = AppColors.underline
+          ..color = night ? AppColors.underlineNight : AppColors.underline
           ..strokeWidth = strokeWidth;
         final y = rect.bottom + strokeWidth / 2;
         canvas.drawLine(Offset(rect.left, y), Offset(rect.right, y), paint);
@@ -381,8 +443,8 @@ class _PdfHighlightPainter extends CustomPainter {
         final color =
             AppColors.highlights[h.colorIndex % AppColors.highlights.length];
         final paint = Paint()
-          ..color = color.withValues(alpha: 0.8)
-          ..blendMode = BlendMode.multiply;
+          ..color = color.withValues(alpha: night ? 0.45 : 0.8)
+          ..blendMode = night ? BlendMode.srcOver : BlendMode.multiply;
         canvas.drawRRect(
           RRect.fromRectAndRadius(rect.inflate(1), const Radius.circular(2)),
           paint,
@@ -393,5 +455,7 @@ class _PdfHighlightPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_PdfHighlightPainter oldDelegate) =>
-      oldDelegate.marks != marks || oldDelegate.strokeWidth != strokeWidth;
+      oldDelegate.marks != marks ||
+      oldDelegate.strokeWidth != strokeWidth ||
+      oldDelegate.night != night;
 }

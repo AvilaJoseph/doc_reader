@@ -44,8 +44,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       // El lector va fuera del shell: pantalla completa, sin navegación.
       GoRoute(
         path: AppRoutes.readerPattern,
-        pageBuilder: (context, state) => MaterialPage(
+        // Transición corta (fundido + leve subida): abrir se siente
+        // inmediato y sigue orientando de dónde viene el documento.
+        pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
+          transitionDuration: const Duration(milliseconds: 200),
+          reverseTransitionDuration: const Duration(milliseconds: 150),
+          transitionsBuilder: _fadeThrough,
           child: ReaderPage(
             documentId: state.pathParameters['id']!,
             initialLocation: int.tryParse(
@@ -59,3 +64,26 @@ final routerProvider = Provider<GoRouter>((ref) {
   ref.onDispose(router.dispose);
   return router;
 });
+
+Widget _fadeThrough(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Widget child,
+) {
+  final curved = CurvedAnimation(
+    parent: animation,
+    curve: Curves.easeOutCubic,
+    reverseCurve: Curves.easeInCubic,
+  );
+  return FadeTransition(
+    opacity: curved,
+    child: SlideTransition(
+      position: Tween(
+        begin: const Offset(0, 0.03),
+        end: Offset.zero,
+      ).animate(curved),
+      child: child,
+    ),
+  );
+}

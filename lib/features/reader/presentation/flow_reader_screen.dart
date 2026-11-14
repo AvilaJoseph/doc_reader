@@ -44,7 +44,11 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
   final _scroll = ScrollController();
   Timer? _saveTimer;
   double _progress = 0;
-  bool _pillVisible = true;
+
+  /// Estado que cambia al hacer scroll: va en notifiers para redibujar solo
+  /// el porcentaje y la píldora, nunca la lista de párrafos.
+  final _percent = ValueNotifier('0 %');
+  final _pillVisible = ValueNotifier(true);
   bool _restored = false;
   late final LibraryController _library;
 
@@ -54,6 +58,7 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
     // Se guarda aquí porque `ref` no se puede usar dentro de dispose().
     _library = ref.read(libraryControllerProvider.notifier);
     _progress = widget.document.progress;
+    _percent.value = _format(_progress);
     _scroll.addListener(_onScroll);
   }
 
@@ -64,6 +69,8 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
     _scroll
       ..removeListener(_onScroll)
       ..dispose();
+    _percent.dispose();
+    _pillVisible.dispose();
     super.dispose();
   }
 
@@ -72,10 +79,13 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
     if (!position.hasContentDimensions) return;
     final max = position.maxScrollExtent;
     final next = max <= 0 ? 1.0 : (position.pixels / max).clamp(0.0, 1.0);
-    if ((next - _progress).abs() >= 0.01) setState(() => _progress = next);
+    _progress = next;
+    _percent.value = _format(next);
     _saveTimer?.cancel();
     _saveTimer = Timer(const Duration(milliseconds: 800), _saveNow);
   }
+
+  static String _format(double progress) => '${(progress * 100).round()} %';
 
   void _saveNow() {
     if (!_restored) return;
@@ -112,9 +122,9 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
     final visible = switch (notification.direction) {
       ScrollDirection.reverse => false,
       ScrollDirection.forward => true,
-      ScrollDirection.idle => _pillVisible,
+      ScrollDirection.idle => _pillVisible.value,
     };
-    if (visible != _pillVisible) setState(() => _pillVisible = visible);
+    _pillVisible.value = visible;
     return false;
   }
 
@@ -123,7 +133,6 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
     final settings = ref.watch(settingsControllerProvider);
     final theme = settings.readingTheme;
     final flow = ref.watch(flowDocumentProvider(widget.document.id));
-    final percent = (_progress * 100).round();
 
     return Theme(
       data: Theme.of(context).copyWith(
@@ -135,7 +144,7 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
       ),
       child: ReaderScaffold(
         title: widget.document.title,
-        subtitle: '$percent %',
+        liveSubtitle: _percent,
         background: theme.background,
         foreground: theme.ink,
         muted: theme.muted,

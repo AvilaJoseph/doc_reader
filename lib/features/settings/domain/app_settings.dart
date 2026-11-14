@@ -9,6 +9,8 @@ class AppSettings {
     this.readingTheme = ReadingTheme.paper,
     this.fontSize = 19,
     this.lineHeight = 1.6,
+    this.pdfNightMode = false,
+    this.lockRotation = false,
   });
 
   static const double minFontSize = 14;
@@ -21,11 +23,19 @@ class AppSettings {
   final double fontSize;
   final double lineHeight;
 
+  /// Invierte los colores de las páginas PDF para leer a oscuras.
+  final bool pdfNightMode;
+
+  /// Mantiene la orientación actual mientras se lee.
+  final bool lockRotation;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     ReadingTheme? readingTheme,
     double? fontSize,
     double? lineHeight,
+    bool? pdfNightMode,
+    bool? lockRotation,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
@@ -35,6 +45,8 @@ class AppSettings {
         minLineHeight,
         maxLineHeight,
       ),
+      pdfNightMode: pdfNightMode ?? this.pdfNightMode,
+      lockRotation: lockRotation ?? this.lockRotation,
     );
   }
 
@@ -44,9 +56,17 @@ class AppSettings {
       other.themeMode == themeMode &&
       other.readingTheme == readingTheme &&
       other.fontSize == fontSize &&
-      other.lineHeight == lineHeight;
+      other.lineHeight == lineHeight &&
+      other.pdfNightMode == pdfNightMode &&
+      other.lockRotation == lockRotation;
 
   @override
-  int get hashCode =>
-      Object.hash(themeMode, readingTheme, fontSize, lineHeight);
+  int get hashCode => Object.hash(
+    themeMode,
+    readingTheme,
+    fontSize,
+    lineHeight,
+    pdfNightMode,
+    lockRotation,
+  );
 }

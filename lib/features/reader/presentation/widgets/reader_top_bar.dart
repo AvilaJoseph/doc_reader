@@ -2,6 +2,25 @@ import 'package:doc_reader/core/theme/app_theme.dart';
 import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/core/widgets/circle_icon_button.dart';
 import 'package:doc_reader/l10n/l10n.dart';
+import 'package:flutter/foundation.dart';
+
+/// Botón extra de la barra superior (modo noche, bloqueo de giro…).
+@immutable
+class ReaderBarAction {
+  const new({
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+    this.active = false,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  /// Resalta el botón cuando la opción está activada.
+  final bool active;
+}
 
 /// Barra superior del lector: volver, título con avance y más opciones.
 class ReaderTopBar extends StatelessWidget {
@@ -12,17 +31,21 @@ class ReaderTopBar extends StatelessWidget {
     required this.muted,
     super.key,
     this.subtitle,
+    this.liveSubtitle,
     this.onBack,
     this.onMore,
+    this.actions = const [],
   });
 
   final String title;
   final String? subtitle;
+  final ValueListenable<String>? liveSubtitle;
   final Color background;
   final Color foreground;
   final Color muted;
   final VoidCallback? onBack;
   final VoidCallback? onMore;
+  final List<ReaderBarAction> actions;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +83,15 @@ class ReaderTopBar extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: textTheme.titleSmall?.copyWith(color: foreground),
                     ),
-                    if (subtitle != null)
+                    if (liveSubtitle case final live?)
+                      ValueListenableBuilder<String>(
+                        valueListenable: live,
+                        builder: (context, value, _) => Text(
+                          value,
+                          style: textTheme.labelSmall?.copyWith(color: muted),
+                        ),
+                      )
+                    else if (subtitle != null)
                       Text(
                         subtitle!,
                         style: textTheme.labelSmall?.copyWith(color: muted),
@@ -68,6 +99,18 @@ class ReaderTopBar extends StatelessWidget {
                   ],
                 ),
               ),
+              for (final action in actions) ...[
+                const SizedBox(width: AppSpacing.sm),
+                CircleIconButton(
+                  icon: action.icon,
+                  tooltip: action.tooltip,
+                  background: action.active
+                      ? foreground.withValues(alpha: 0.2)
+                      : buttonBackground,
+                  foreground: foreground,
+                  onPressed: action.onPressed,
+                ),
+              ],
               if (onMore != null) ...[
                 const SizedBox(width: AppSpacing.md),
                 CircleIconButton(

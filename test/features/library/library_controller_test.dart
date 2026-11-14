@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:doc_reader/features/library/application/library_controller.dart';
 import 'package:doc_reader/features/library/application/library_filter.dart';
 import 'package:doc_reader/features/library/application/library_providers.dart';
+import 'package:doc_reader/features/library/data/cover_cache.dart';
 import 'package:doc_reader/features/library/data/document_file_store.dart';
 import 'package:doc_reader/features/library/data/prefs_library_repository.dart';
 import 'package:doc_reader/features/library/domain/document_kind.dart';
@@ -34,6 +35,9 @@ void main() {
       overrides: [
         documentFileStoreProvider.overrideWithValue(
           DocumentFileStore(baseDirectory: () async => tempDir),
+        ),
+        coverCacheProvider.overrideWithValue(
+          CoverCache(baseDirectory: () async => tempDir),
         ),
       ],
     );
@@ -97,9 +101,12 @@ void main() {
     await controller().restore(doc);
     expect(docs(), hasLength(1));
 
+    final cover = File('${tempDir.path}/covers/${doc.id}.png')
+      ..createSync(recursive: true);
     await controller().remove(doc.id);
     await controller().purge(doc);
     expect(File(path).existsSync(), isFalse);
+    expect(cover.existsSync(), isFalse);
   });
 
   test('añade los ejemplos una sola vez', () async {

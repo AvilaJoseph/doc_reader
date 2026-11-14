@@ -79,7 +79,8 @@ abstract final class AppTheme {
       brightness: brightness,
       colorScheme: scheme,
       scaffoldBackgroundColor: background,
-      splashFactory: InkSparkle.splashFactory,
+      // InkRipple es más ligero que InkSparkle (que usa un shader).
+      splashFactory: InkRipple.splashFactory,
     );
     final textTheme = AppTypography.uiTextTheme(base.textTheme)
         .apply(bodyColor: ink, displayColor: ink);

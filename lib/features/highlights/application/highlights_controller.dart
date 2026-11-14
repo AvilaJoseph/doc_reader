@@ -34,49 +34,112 @@ class HighlightsController extends AsyncNotifier<List<Highlight>> {
 
   List<Highlight> get _current => state.value ?? const [];
 
-  /// Crea un subrayado. Los que se solapan en el mismo bloque se
-  /// sustituyen, para no apilar colores.
-  Future<Highlight> add({
+  /// Marca uno o varios fragmentos (uno por bloque o página). Las marcas
+  /// que se solapan en el mismo bloque se sustituyen, conservando su nota.
+  Future<List<Highlight>> mark({
     required String documentId,
-    required int blockIndex,
-    required int start,
-    required int end,
+    required List<HighlightDraft> drafts,
     required int colorIndex,
-    required String text,
+    HighlightStyle style = HighlightStyle.highlight,
   }) async {
-    final highlight = Highlight(
-      id: _uuid.v4(),
-      documentId: documentId,
-      blockIndex: blockIndex,
-      start: start,
-      end: end,
-      colorIndex: colorIndex,
-      text: text,
-      createdAt: DateTime.now(),
-    );
-    final kept = _current.where(
-      (h) =>
-          !(h.documentId == documentId &&
-              h.blockIndex == blockIndex &&
-              h.overlaps(start, end)),
-    );
-    await _commit([...kept, highlight]);
-    return highlight;
+    var next = [..._current];
+    final created = <Highlight>[];
+    for (final draft in drafts) {
+      final overlapped = _overlapping(next, documentId, draft);
+      final highlight = Highlight(
+        id: _uuid.v4(),
+        documentId: documentId,
+        blockIndex: draft.blockIndex,
+        start: draft.start,
+        end: draft.end,
+        colorIndex: colorIndex,
+        text: draft.text,
+        createdAt: DateTime.now(),
+        style: style,
+        note: overlapped.map((h) => h.note).nonNulls.firstOrNull,
+        rects: draft.rects,
+      );
+      next = [...next.where((h) => !overlapped.contains(h)), highlight];
+      created.add(highlight);
+    }
+    await _commit(next);
+    return created;
   }
 
-  /// Quita los subrayados que tocan el rango indicado.
-  Future<void> removeRange({
+  /// Añade una nota. Si el fragmento ya estaba marcado, la nota se guarda
+  /// en esa marca; si no, se crea un resaltado con el primer color.
+  Future<void> annotate({
     required String documentId,
-    required int blockIndex,
-    required int start,
-    required int end,
-  }) => _commit([
+    required List<HighlightDraft> drafts,
+    required String note,
+  }) async {
+    var next = [..._current];
+    for (final draft in drafts) {
+      final existing = _overlapping(next, documentId, draft).firstOrNull;
+      if (existing != null) {
+        next = [
+          for (final h in next)
+            if (h.id == existing.id) h.copyWith(note: note) else h,
+        ];
+      } else {
+        next = [
+          ...next,
+          Highlight(
+            id: _uuid.v4(),
+            documentId: documentId,
+            blockIndex: draft.blockIndex,
+            start: draft.start,
+            end: draft.end,
+            colorIndex: 0,
+            text: draft.text,
+            createdAt: DateTime.now(),
+            note: note,
+            rects: draft.rects,
+          ),
+        ];
+      }
+    }
+    await _commit(next);
+  }
+
+  /// Cambia o borra (texto vacío) la nota de una marca.
+  Future<void> updateNote(String id, String note) => _commit([
     for (final h in _current)
-      if (!(h.documentId == documentId &&
-          h.blockIndex == blockIndex &&
-          h.overlaps(start, end)))
+      if (h.id == id)
+        h.copyWith(note: note.trim(), clearNote: note.trim().isEmpty)
+      else
         h,
   ]);
+
+  /// Quita las marcas que tocan los fragmentos indicados.
+  Future<void> removeRanges({
+    required String documentId,
+    required List<HighlightDraft> drafts,
+  }) {
+    final doomed = {
+      for (final d in drafts) ..._overlapping(_current, documentId, d),
+    };
+    return _commit([
+      for (final h in _current)
+        if (!doomed.contains(h)) h,
+    ]);
+  }
+
+  /// Marcas existentes que se solapan con [draft].
+  List<Highlight> overlapping(String documentId, HighlightDraft draft) =>
+      _overlapping(_current, documentId, draft);
+
+  static List<Highlight> _overlapping(
+    List<Highlight> list,
+    String documentId,
+    HighlightDraft draft,
+  ) => [
+    for (final h in list)
+      if (h.documentId == documentId &&
+          h.blockIndex == draft.blockIndex &&
+          h.overlaps(draft.start, draft.end))
+        h,
+  ];
 
   Future<void> remove(String id) => _commit([
     for (final h in _current)

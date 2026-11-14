@@ -14,9 +14,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Punto de entrada del lector: elige el visor según el tipo de documento.
 class ReaderPage extends ConsumerStatefulWidget {
-  const new({required this.documentId, super.key});
+  const new({required this.documentId, super.key, this.initialLocation});
 
   final String documentId;
+
+  /// Página (PDF) o bloque (texto) donde abrir, si se pide uno concreto.
+  final int? initialLocation;
 
   @override
   ConsumerState<ReaderPage> createState() => _ReaderPageState();
@@ -62,9 +65,13 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
         document: document,
         onMore: onMore,
         library: ref.read(libraryControllerProvider.notifier),
+        initialPage: widget.initialLocation,
       ),
-      DocumentKind.word ||
-      DocumentKind.text => FlowReaderScreen(document: document, onMore: onMore),
+      DocumentKind.word || DocumentKind.text => FlowReaderScreen(
+        document: document,
+        onMore: onMore,
+        initialBlock: widget.initialLocation,
+      ),
       DocumentKind.spreadsheet => SpreadsheetReaderScreen(
         document: document,
         onMore: onMore,

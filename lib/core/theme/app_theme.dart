@@ -179,6 +179,11 @@ abstract final class AppTheme {
         ),
         subtitleTextStyle: textTheme.bodySmall?.copyWith(color: inkMuted),
       ),
+      textSelectionTheme: const TextSelectionThemeData(
+        selectionColor: AppColors.selection,
+        selectionHandleColor: AppColors.selectionHandle,
+        cursorColor: AppColors.selectionHandle,
+      ),
       progressIndicatorTheme: ProgressIndicatorThemeData(
         color: ink,
         linearTrackColor: line,

@@ -59,7 +59,7 @@
   "highlightColor": "Highlight with color {index}",
   "highlightsTitle": "Highlights",
   "highlightsEmptyTitle": "No highlights yet",
-  "highlightsEmptyBody": "Select text in a Word or text document and pick a color to keep it here.",
+  "highlightsEmptyBody": "Select text in any document and pick a color, underline it or add a note.",
   "highlightDeleted": "Highlight deleted",
   "settingsTitle": "Settings",
   "settingsAppearance": "Appearance",
@@ -72,5 +72,13 @@
   "settingsPrivacyTitle": "No ads, no tracking",
   "settingsPrivacyBody": "Folio shows no advertising and collects no data. Your documents stay on your device.",
   "settingsFormatsTitle": "Supported formats",
-  "settingsFormatsBody": "PDF, Word (.docx), Excel (.xlsx), CSV, TXT and Markdown."
+  "settingsFormatsBody": "PDF, Word (.docx), Excel (.xlsx), CSV, TXT and Markdown.",
+  "annotationUnderline": "Underline",
+  "annotationNote": "Note",
+  "annotationNoteHint": "Write your note…",
+  "annotationShareTitle": "Excerpt from “{title}”",
+  "highlightsPage": "Page {page}",
+  "highlightsEditNote": "Edit note",
+  "highlightsAddNote": "Add note",
+  "highlightsUnderlined": "Underlined"
 }

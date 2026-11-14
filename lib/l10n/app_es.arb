@@ -9,7 +9,6 @@
   "undo": "Deshacer",
   "retry": "Reintentar",
   "copied": "Copiado",
-
   "libraryTitle": "Biblioteca",
   "librarySearchHint": "Buscar documentos",
   "filterAll": "Todos",
@@ -27,7 +26,11 @@
   "documentNotStarted": "Sin empezar",
   "documentProgress": "{percent} % leído",
   "@documentProgress": {
-    "placeholders": { "percent": { "type": "int" } }
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   },
   "documentFinished": "Terminado",
   "documentOpen": "Abrir",
@@ -36,31 +39,53 @@
   "documentRemove": "Quitar de la biblioteca",
   "documentRemoved": "«{title}» se quitó de la biblioteca",
   "@documentRemoved": {
-    "placeholders": { "title": { "type": "String" } }
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
   },
   "renameTitle": "Cambiar nombre",
   "save": "Guardar",
   "cancel": "Cancelar",
   "importAdded": "{count, plural, =1{Documento añadido} other{{count} documentos añadidos}}",
   "@importAdded": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "importUnsupported": "Formato no compatible: {names}",
   "@importUnsupported": {
-    "placeholders": { "names": { "type": "String" } }
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
   },
   "importFailed": "No se pudo abrir: {names}",
   "@importFailed": {
-    "placeholders": { "names": { "type": "String" } }
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
   },
-
   "readerError": "No se pudo leer este documento",
   "readerErrorMissing": "El archivo ya no está disponible en el dispositivo",
   "readerErrorUnsupported": "Este formato todavía no es compatible",
   "readerNotFound": "Este documento ya no está en la biblioteca",
   "readerPageOf": "{current} de {total}",
   "@readerPageOf": {
-    "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } }
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "readerGoToPage": "Ir a la página",
   "readerGo": "Ir",
@@ -75,20 +100,26 @@
   "readerSheetEmpty": "Hoja vacía",
   "readerSheetTruncated": "Se muestran las primeras {rows} filas",
   "@readerSheetTruncated": {
-    "placeholders": { "rows": { "type": "int" } }
+    "placeholders": {
+      "rows": {
+        "type": "int"
+      }
+    }
   },
-
   "highlightCopy": "Copiar",
   "highlightRemove": "Quitar subrayado",
   "highlightColor": "Subrayar en color {index}",
   "@highlightColor": {
-    "placeholders": { "index": { "type": "int" } }
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
   },
   "highlightsTitle": "Subrayados",
   "highlightsEmptyTitle": "Aún no hay subrayados",
-  "highlightsEmptyBody": "Selecciona texto en un documento de Word o de texto y elige un color para guardarlo aquí.",
+  "highlightsEmptyBody": "Selecciona texto en cualquier documento y elige un color, subraya o añade una nota.",
   "highlightDeleted": "Subrayado eliminado",
-
   "settingsTitle": "Ajustes",
   "settingsAppearance": "Apariencia",
   "themeSystem": "Sistema",
@@ -100,5 +131,27 @@
   "settingsPrivacyTitle": "Sin anuncios ni rastreo",
   "settingsPrivacyBody": "Folio no muestra publicidad ni recopila datos. Tus documentos se quedan en tu dispositivo.",
   "settingsFormatsTitle": "Formatos compatibles",
-  "settingsFormatsBody": "PDF, Word (.docx), Excel (.xlsx), CSV, TXT y Markdown."
+  "settingsFormatsBody": "PDF, Word (.docx), Excel (.xlsx), CSV, TXT y Markdown.",
+  "annotationUnderline": "Subrayar",
+  "annotationNote": "Nota",
+  "annotationNoteHint": "Escribe tu nota…",
+  "annotationShareTitle": "Fragmento de «{title}»",
+  "highlightsPage": "Pág. {page}",
+  "highlightsEditNote": "Editar nota",
+  "highlightsAddNote": "Añadir nota",
+  "highlightsUnderlined": "Subrayado",
+  "@annotationShareTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@highlightsPage": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  }
 }

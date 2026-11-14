@@ -212,7 +212,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get highlightsEmptyBody =>
-      'Select text in a Word or text document and pick a color to keep it here.';
+      'Select text in any document and pick a color, underline it or add a note.';
 
   @override
   String get highlightDeleted => 'Highlight deleted';
@@ -255,4 +255,32 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsFormatsBody =>
       'PDF, Word (.docx), Excel (.xlsx), CSV, TXT and Markdown.';
+
+  @override
+  String get annotationUnderline => 'Underline';
+
+  @override
+  String get annotationNote => 'Note';
+
+  @override
+  String get annotationNoteHint => 'Write your note…';
+
+  @override
+  String annotationShareTitle(String title) {
+    return 'Excerpt from “$title”';
+  }
+
+  @override
+  String highlightsPage(int page) {
+    return 'Page $page';
+  }
+
+  @override
+  String get highlightsEditNote => 'Edit note';
+
+  @override
+  String get highlightsAddNote => 'Add note';
+
+  @override
+  String get highlightsUnderlined => 'Underlined';
 }

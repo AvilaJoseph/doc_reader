@@ -14,8 +14,13 @@ const docs = [
  {id:'x',title:'Presupuesto mensual',fileName:'presupuesto.xlsx',kind:'spreadsheet',source:'asset:assets/samples/presupuesto.xlsx',sizeBytes:5962,addedAt:'2026-11-12T10:00:00.000'},
  {id:'m',title:'Notas de ideas',fileName:'notas.md',kind:'text',source:'asset:assets/samples/notas.md',sizeBytes:491,addedAt:'2026-11-11T10:00:00.000',progress:1},
 ];
-const hl = [{id:'h1',documentId:'w',blockIndex:7,start:0,end:58,colorIndex:0,text:'Selecciona cualquier frase de este documento y elige un color',createdAt:'2026-11-14T11:00:00.000'},
- {id:'h2',documentId:'w',blockIndex:13,start:0,end:46,colorIndex:2,text:'Un sendero tranquilo se perdía tras la colina.',createdAt:'2026-11-14T11:05:00.000'}];
+const hl = [
+ {id:'h1',documentId:'w',blockIndex:7,start:0,end:58,colorIndex:0,text:'Selecciona cualquier frase de este documento y elige un color',createdAt:'2026-11-14T11:00:00.000'},
+ {id:'h2',documentId:'w',blockIndex:13,start:0,end:46,colorIndex:2,text:'Un sendero tranquilo se perdía tras la colina.',createdAt:'2026-11-14T11:05:00.000',note:'Me gusta el ritmo de esta frase.'},
+ {id:'h3',documentId:'w',blockIndex:1,start:0,end:36,colorIndex:0,style:'underline',text:'Folio es un lector de documentos sin',createdAt:'2026-11-14T11:06:00.000'},
+ {id:'h4',documentId:'p',blockIndex:1,start:0,end:20,colorIndex:1,text:'Leer bien empieza antes de abrir el documento.',createdAt:'2026-11-14T11:07:00.000',rects:[[40,452,380,440]]},
+ {id:'h5',documentId:'p',blockIndex:1,start:30,end:60,colorIndex:0,style:'underline',text:'La pantalla debe acompañar, no competir.',createdAt:'2026-11-14T11:08:00.000',rects:[[40,438,330,427]]},
+];
 (async () => {
   const which = process.argv.slice(2);
   const browser = await chromium.launch();

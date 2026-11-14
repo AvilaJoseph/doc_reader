@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:doc_reader/core/theme/app_colors.dart';
 import 'package:doc_reader/core/theme/app_theme.dart';
 import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/core/widgets/empty_state.dart';
 import 'package:doc_reader/core/widgets/floating_pill.dart';
 import 'package:doc_reader/features/highlights/application/highlights_controller.dart';
+import 'package:doc_reader/features/highlights/presentation/annotation_actions.dart';
 import 'package:doc_reader/features/library/application/library_controller.dart';
 import 'package:doc_reader/features/library/domain/library_document.dart';
 import 'package:doc_reader/features/reader/application/document_providers.dart';
@@ -21,10 +23,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Lector de documentos de texto (Word, TXT, Markdown) con tipografía
 /// serif, ambientes de lectura y subrayados.
 class FlowReaderScreen extends ConsumerStatefulWidget {
-  const new({required this.document, required this.onMore, super.key});
+  const new({
+    required this.document,
+    required this.onMore,
+    super.key,
+    this.initialBlock,
+  });
 
   final LibraryDocument document;
   final VoidCallback onMore;
+
+  /// Bloque al que saltar al abrir (p. ej. desde un subrayado).
+  final int? initialBlock;
 
   @override
   ConsumerState<FlowReaderScreen> createState() => _FlowReaderScreenState();
@@ -80,15 +90,18 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
 
   /// Vuelve a la posición guardada. Como la lista es perezosa, la altura
   /// total se estima; se reajusta un par de frames hasta estabilizarse.
-  void _restorePosition([int attempt = 0]) {
+  void _restorePosition(int blockCount, [int attempt = 0]) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_scroll.hasClients) return;
-      final target = widget.document.position.clamp(0.0, 1.0);
+      final block = widget.initialBlock;
+      final target = block != null && blockCount > 0
+          ? (block / blockCount).clamp(0.0, 1.0)
+          : widget.document.position.clamp(0.0, 1.0);
       if (target > 0) {
         _scroll.jumpTo(target * _scroll.position.maxScrollExtent);
       }
       if (attempt < 3 && target > 0) {
-        _restorePosition(attempt + 1);
+        _restorePosition(blockCount, attempt + 1);
       } else {
         _restored = true;
       }
@@ -114,9 +127,10 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
 
     return Theme(
       data: Theme.of(context).copyWith(
-        textSelectionTheme: TextSelectionThemeData(
-          selectionHandleColor: theme.ink,
-          cursorColor: theme.ink,
+        textSelectionTheme: const TextSelectionThemeData(
+          selectionColor: AppColors.selection,
+          selectionHandleColor: AppColors.selectionHandle,
+          cursorColor: AppColors.selectionHandle,
         ),
       ),
       child: ReaderScaffold(
@@ -177,13 +191,24 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
         title: context.l10n.readerEmpty,
       );
     }
-    if (!_restored) _restorePosition();
+    if (!_restored) _restorePosition(flow.blocks.length);
 
     final highlights = ref.watch(
       documentHighlightsProvider(widget.document.id),
     );
-    final controller = ref.read(highlightsControllerProvider.notifier);
-    final docId = widget.document.id;
+    final annotations = AnnotationActions(
+      context: context,
+      ref: ref,
+      documentId: widget.document.id,
+      documentTitle: widget.document.title,
+    );
+    final actions = FlowAnnotationActions(
+      onMark: (draft, color, style) => annotations.mark([draft], color, style),
+      onNote: (draft) => unawaited(annotations.note([draft])),
+      onRemove: (draft) => annotations.remove([draft]),
+      onCopy: annotations.copy,
+      onShare: annotations.share,
+    );
     // Columna de lectura de ~680 px como máximo, centrada en tablets.
     final width = MediaQuery.sizeOf(context).width;
     final horizontal = width > 680 + AppSpacing.lg * 2
@@ -211,32 +236,7 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
               blockIndex: index,
               style: style,
               highlights: highlights[index] ?? const [],
-              onHighlight: (blockIndex, start, end, color) {
-                final text = block is ParagraphBlock
-                    ? block.plainText.substring(start, end)
-                    : '';
-                unawaited(
-                  controller.add(
-                    documentId: docId,
-                    blockIndex: blockIndex,
-                    start: start,
-                    end: end,
-                    colorIndex: color,
-                    text: text,
-                  ),
-                );
-              },
-              onRemoveHighlight: (blockIndex, start, end) => unawaited(
-                controller.removeRange(
-                  documentId: docId,
-                  blockIndex: blockIndex,
-                  start: start,
-                  end: end,
-                ),
-              ),
-              onCopy: (_) => ScaffoldMessenger.of(context)
-                ..hideCurrentSnackBar()
-                ..showSnackBar(SnackBar(content: Text(context.l10n.copied))),
+              actions: actions,
             );
           },
         ),

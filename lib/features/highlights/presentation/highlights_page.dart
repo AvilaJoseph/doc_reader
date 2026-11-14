@@ -9,6 +9,7 @@ import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/core/widgets/empty_state.dart';
 import 'package:doc_reader/features/highlights/application/highlights_controller.dart';
 import 'package:doc_reader/features/highlights/domain/highlight.dart';
+import 'package:doc_reader/features/highlights/presentation/note_dialog.dart';
 import 'package:doc_reader/features/library/application/library_controller.dart';
 import 'package:doc_reader/l10n/l10n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -92,8 +93,11 @@ class HighlightsPage extends ConsumerWidget {
                           key: ValueKey(h.id),
                           highlight: h,
                           onTap: () => unawaited(
-                            context.push(AppRoutes.reader(h.documentId)),
+                            context.push(
+                              AppRoutes.reader(h.documentId, at: h.blockIndex),
+                            ),
                           ),
+                          onEditNote: () => _editNote(context, ref, h),
                           onDismissed: () => _delete(context, ref, h),
                         ),
                     ],
@@ -104,6 +108,16 @@ class HighlightsPage extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _editNote(
+    BuildContext context,
+    WidgetRef ref,
+    Highlight h,
+  ) async {
+    final controller = ref.read(highlightsControllerProvider.notifier);
+    final text = await showNoteDialog(context, quote: h.text, initial: h.note);
+    if (text != null) await controller.updateNote(h.id, text);
   }
 
   void _delete(BuildContext context, WidgetRef ref, Highlight h) {
@@ -127,19 +141,30 @@ class _HighlightTile extends StatelessWidget {
   const new({
     required this.highlight,
     required this.onTap,
+    required this.onEditNote,
     required this.onDismissed,
     super.key,
   });
 
   final Highlight highlight;
   final VoidCallback onTap;
+  final VoidCallback onEditNote;
   final VoidCallback onDismissed;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final color = AppColors
-        .highlights[highlight.colorIndex % AppColors.highlights.length];
+    final l10n = context.l10n;
+    final muted = theme.colorScheme.onSurfaceVariant;
+    final underline = highlight.style == HighlightStyle.underline;
+    final color = underline
+        ? AppColors.underline
+        : AppColors.highlights[highlight.colorIndex %
+              AppColors.highlights.length];
+    final meta = [
+      if (highlight.isPdf) l10n.highlightsPage(highlight.blockIndex),
+      if (underline) l10n.highlightsUnderlined,
+    ].join(' · ');
     return Dismissible(
       key: ValueKey(highlight.id),
       direction: DismissDirection.endToStart,
@@ -176,17 +201,64 @@ class _HighlightTile extends StatelessWidget {
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(14, 14, 16, 14),
-                      child: Text(
-                        highlight.text,
-                        maxLines: 6,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTypography.reading(
-                          color: theme.colorScheme.onSurface,
-                          fontSize: 16,
-                          height: 1.5,
-                        ),
+                      padding: const EdgeInsets.fromLTRB(14, 14, 4, 14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            highlight.text,
+                            maxLines: 6,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.reading(
+                              color: theme.colorScheme.onSurface,
+                              fontSize: 16,
+                              height: 1.5,
+                            ),
+                          ),
+                          if (highlight.hasNote) ...[
+                            const SizedBox(height: AppSpacing.sm),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.sticky_note_2_outlined,
+                                  size: 16,
+                                  color: muted,
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    highlight.note!,
+                                    style: theme.textTheme.bodyMedium,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                          if (meta.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                              meta,
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: muted,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: highlight.hasNote
+                        ? l10n.highlightsEditNote
+                        : l10n.highlightsAddNote,
+                    onPressed: onEditNote,
+                    icon: Icon(
+                      highlight.hasNote
+                          ? Icons.edit_note_rounded
+                          : Icons.note_add_outlined,
+                      size: 20,
+                      color: muted,
                     ),
                   ),
                 ],

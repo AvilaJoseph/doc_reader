@@ -37,4 +37,21 @@ void main() {
     expect(settings.themeMode, ThemeMode.light);
     expect(settings.fontSize, 22);
   });
+  test('guarda modo noche de PDF y bloqueo de giro', () async {
+    final container = await createContainer(
+      prefs: {'settings.lockRotation': true},
+    );
+    addTearDown(container.dispose);
+    expect(container.read(settingsControllerProvider).lockRotation, isTrue);
+
+    container.read(settingsControllerProvider.notifier)
+      ..setPdfNightMode(enabled: true)
+      ..setLockRotation(enabled: false);
+
+    final settings = container.read(settingsControllerProvider);
+    expect(settings.pdfNightMode, isTrue);
+    expect(settings.lockRotation, isFalse);
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getBool('settings.pdfNightMode'), isTrue);
+  });
 }

@@ -9,7 +9,9 @@ import 'package:doc_reader/features/reader/application/document_providers.dart';
 import 'package:doc_reader/features/reader/presentation/flow_reader_screen.dart';
 import 'package:doc_reader/features/reader/presentation/pdf_reader_screen.dart';
 import 'package:doc_reader/features/reader/presentation/spreadsheet_reader_screen.dart';
+import 'package:doc_reader/features/settings/application/settings_controller.dart';
 import 'package:doc_reader/l10n/l10n.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Punto de entrada del lector: elige el visor según el tipo de documento.
@@ -36,8 +38,49 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     );
   }
 
+  bool _rotationApplied = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_rotationApplied) return;
+    _rotationApplied = true;
+    _applyRotationLock(
+      locked: ref.read(settingsControllerProvider).lockRotation,
+    );
+  }
+
+  @override
+  void dispose() {
+    // Al salir del lector la app vuelve a girar libremente.
+    unawaited(SystemChrome.setPreferredOrientations(const []));
+    super.dispose();
+  }
+
+  /// Fija la orientación actual mientras se lee, o la libera.
+  void _applyRotationLock({required bool locked}) {
+    final landscape =
+        MediaQuery.orientationOf(context) == Orientation.landscape;
+    unawaited(
+      SystemChrome.setPreferredOrientations(
+        !locked
+            ? const []
+            : landscape
+            ? const [
+                DeviceOrientation.landscapeLeft,
+                DeviceOrientation.landscapeRight,
+              ]
+            : const [DeviceOrientation.portraitUp],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    ref.listen(
+      settingsControllerProvider.select((s) => s.lockRotation),
+      (_, locked) => _applyRotationLock(locked: locked),
+    );
     // Solo reconstruimos si cambia el documento en sí, no su progreso.
     final doc = ref.watch(
       libraryDocumentProvider(widget.documentId)

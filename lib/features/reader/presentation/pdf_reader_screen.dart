@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:doc_reader/core/theme/app_colors.dart';
+import 'package:doc_reader/core/theme/reading_theme.dart';
 import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/core/widgets/floating_pill.dart';
 import 'package:doc_reader/features/highlights/application/highlights_controller.dart';
@@ -10,9 +11,12 @@ import 'package:doc_reader/features/highlights/presentation/annotation_toolbar.d
 import 'package:doc_reader/features/library/application/library_controller.dart';
 import 'package:doc_reader/features/library/domain/document_source.dart';
 import 'package:doc_reader/features/library/domain/library_document.dart';
+import 'package:doc_reader/features/reader/formats/pdf/pdf_night_filter.dart';
 import 'package:doc_reader/features/reader/formats/pdf/pdf_text_lines.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_scaffold.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_states.dart';
+import 'package:doc_reader/features/reader/presentation/widgets/reader_top_bar.dart';
+import 'package:doc_reader/features/settings/application/settings_controller.dart';
 import 'package:doc_reader/l10n/l10n.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,6 +52,9 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
 
   /// Marcas del documento por página (se actualiza en cada build).
   Map<int, List<Highlight>> _highlights = const {};
+
+  /// Modo noche: páginas invertidas y fondo oscuro.
+  bool _night = false;
 
   /// Fragmentos de la selección actual, calculados al cambiar la selección.
   List<HighlightDraft> _selection = const [];
@@ -178,6 +185,7 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
                     ),
               ],
               strokeWidth: (1.6 * scale).clamp(1.2, 3.5),
+              night: _night,
             ),
           ),
         ),
@@ -228,8 +236,14 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
   @override
   Widget build(BuildContext context) {
     _highlights = ref.watch(documentHighlightsProvider(widget.document.id));
+    _night = ref.watch(
+      settingsControllerProvider.select((s) => s.pdfNightMode),
+    );
     final scheme = Theme.of(context).colorScheme;
-    final background = scheme.surfaceContainerHigh;
+    const night = ReadingTheme.night;
+    final background = _night ? night.background : scheme.surfaceContainerHigh;
+    final foreground = _night ? night.ink : scheme.onSurface;
+    final muted = _night ? night.muted : scheme.onSurfaceVariant;
     final params = PdfViewerParams(
       textSelectionParams: PdfTextSelectionParams(
         onTextSelectionChange: _onSelectionChanged,
@@ -237,6 +251,7 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
       buildContextMenu: _buildContextMenu,
       pageOverlaysBuilder: _buildPageOverlays,
       backgroundColor: background,
+      pageImageColorFilter: _night ? pdfNightFilter : null,
       margin: 10,
       pageDropShadow: BoxShadow(
         color: Colors.black.withValues(alpha: 0.12),
@@ -247,8 +262,7 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
         setState(() => _pageCount = document.pages.length);
       },
       onPageChanged: _onPageChanged,
-      loadingBannerBuilder: (context, _, _) =>
-          ReaderLoading(color: scheme.onSurfaceVariant),
+      loadingBannerBuilder: (context, _, _) => ReaderLoading(color: muted),
       errorBannerBuilder: (context, error, _, _) => ReaderError(error: error),
     );
     final initialPage = _initialPage;
@@ -274,9 +288,21 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
           ? null
           : context.l10n.readerPageOf(_page, _pageCount),
       background: background,
-      foreground: scheme.onSurface,
-      muted: scheme.onSurfaceVariant,
+      foreground: foreground,
+      muted: muted,
       onMore: widget.onMore,
+      actions: [
+        ReaderBarAction(
+          icon: _night ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+          tooltip: _night
+              ? context.l10n.readerDayMode
+              : context.l10n.readerNightMode,
+          active: _night,
+          onPressed: () => ref
+              .read(settingsControllerProvider.notifier)
+              .setPdfNightMode(enabled: !_night),
+        ),
+      ],
       body: viewer,
       bottomPill: _pageCount == 0
           ? null
@@ -363,17 +389,20 @@ class _GoToPageDialogState extends State<_GoToPageDialog> {
 
 /// Pinta resaltados (fondo multiplicado) y subrayados (línea) en una página.
 class _PdfHighlightPainter extends CustomPainter {
-  new({required this.marks, required this.strokeWidth});
+  new({required this.marks, required this.strokeWidth, required this.night});
 
   final List<(Rect, Highlight)> marks;
   final double strokeWidth;
+
+  /// Sobre páginas oscuras multiplicar no se vería: se pinta translúcido.
+  final bool night;
 
   @override
   void paint(Canvas canvas, Size size) {
     for (final (rect, h) in marks) {
       if (h.style == HighlightStyle.underline) {
         final paint = Paint()
-          ..color = AppColors.underline
+          ..color = night ? AppColors.underlineNight : AppColors.underline
           ..strokeWidth = strokeWidth;
         final y = rect.bottom + strokeWidth / 2;
         canvas.drawLine(Offset(rect.left, y), Offset(rect.right, y), paint);
@@ -381,8 +410,8 @@ class _PdfHighlightPainter extends CustomPainter {
         final color =
             AppColors.highlights[h.colorIndex % AppColors.highlights.length];
         final paint = Paint()
-          ..color = color.withValues(alpha: 0.8)
-          ..blendMode = BlendMode.multiply;
+          ..color = color.withValues(alpha: night ? 0.45 : 0.8)
+          ..blendMode = night ? BlendMode.srcOver : BlendMode.multiply;
         canvas.drawRRect(
           RRect.fromRectAndRadius(rect.inflate(1), const Radius.circular(2)),
           paint,
@@ -393,5 +422,7 @@ class _PdfHighlightPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_PdfHighlightPainter oldDelegate) =>
-      oldDelegate.marks != marks || oldDelegate.strokeWidth != strokeWidth;
+      oldDelegate.marks != marks ||
+      oldDelegate.strokeWidth != strokeWidth ||
+      oldDelegate.night != night;
 }

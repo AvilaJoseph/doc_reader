@@ -1,10 +1,14 @@
 import 'package:doc_reader/core/theme/app_theme.dart';
 import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_top_bar.dart';
+import 'package:doc_reader/features/settings/application/settings_controller.dart';
+import 'package:doc_reader/l10n/l10n.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Estructura común de los visores: barra superior, contenido y una
-/// píldora flotante opcional abajo que se oculta al leer.
-class ReaderScaffold extends StatelessWidget {
+/// píldora flotante opcional abajo que se oculta al leer. Incluye siempre
+/// el botón de bloqueo de giro.
+class ReaderScaffold extends ConsumerWidget {
   const new({
     required this.title,
     required this.body,
@@ -16,6 +20,7 @@ class ReaderScaffold extends StatelessWidget {
     this.bottomPill,
     this.pillVisible = true,
     this.onMore,
+    this.actions = const [],
   });
 
   final String title;
@@ -28,8 +33,15 @@ class ReaderScaffold extends StatelessWidget {
   final Color muted;
   final VoidCallback? onMore;
 
+  /// Botones extra del visor, a la izquierda del bloqueo de giro.
+  final List<ReaderBarAction> actions;
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locked = ref.watch(
+      settingsControllerProvider.select((s) => s.lockRotation),
+    );
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: background,
       body: Column(
@@ -41,6 +53,21 @@ class ReaderScaffold extends StatelessWidget {
             foreground: foreground,
             muted: muted,
             onMore: onMore,
+            actions: [
+              ...actions,
+              ReaderBarAction(
+                icon: locked
+                    ? Icons.screen_lock_rotation_rounded
+                    : Icons.screen_rotation_rounded,
+                tooltip: locked
+                    ? l10n.readerUnlockRotation
+                    : l10n.readerLockRotation,
+                active: locked,
+                onPressed: () => ref
+                    .read(settingsControllerProvider.notifier)
+                    .setLockRotation(enabled: !locked),
+              ),
+            ],
           ),
           Expanded(
             child: Stack(

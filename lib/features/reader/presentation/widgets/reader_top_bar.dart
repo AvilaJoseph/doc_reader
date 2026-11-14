@@ -3,6 +3,24 @@ import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/core/widgets/circle_icon_button.dart';
 import 'package:doc_reader/l10n/l10n.dart';
 
+/// Botón extra de la barra superior (modo noche, bloqueo de giro…).
+@immutable
+class ReaderBarAction {
+  const new({
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+    this.active = false,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  /// Resalta el botón cuando la opción está activada.
+  final bool active;
+}
+
 /// Barra superior del lector: volver, título con avance y más opciones.
 class ReaderTopBar extends StatelessWidget {
   const new({
@@ -14,6 +32,7 @@ class ReaderTopBar extends StatelessWidget {
     this.subtitle,
     this.onBack,
     this.onMore,
+    this.actions = const [],
   });
 
   final String title;
@@ -23,6 +42,7 @@ class ReaderTopBar extends StatelessWidget {
   final Color muted;
   final VoidCallback? onBack;
   final VoidCallback? onMore;
+  final List<ReaderBarAction> actions;
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +88,18 @@ class ReaderTopBar extends StatelessWidget {
                   ],
                 ),
               ),
+              for (final action in actions) ...[
+                const SizedBox(width: AppSpacing.sm),
+                CircleIconButton(
+                  icon: action.icon,
+                  tooltip: action.tooltip,
+                  background: action.active
+                      ? foreground.withValues(alpha: 0.2)
+                      : buttonBackground,
+                  foreground: foreground,
+                  onPressed: action.onPressed,
+                ),
+              ],
               if (onMore != null) ...[
                 const SizedBox(width: AppSpacing.md),
                 CircleIconButton(

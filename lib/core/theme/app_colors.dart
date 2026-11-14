@@ -44,6 +44,9 @@ abstract final class AppColors {
   /// Color de la línea de "Subrayar".
   static const Color underline = Color(0xFF2F7CF6);
 
+  /// Subrayado sobre fondos oscuros (más claro para que se vea).
+  static const Color underlineNight = Color(0xFF6EA8FF);
+
   /// Colores del resaltador (fondo translúcido sobre el texto).
   static const List<Color> highlights = [
     Color(0xFFF3DC8C), // mantequilla

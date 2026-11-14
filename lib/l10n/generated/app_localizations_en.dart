@@ -159,6 +159,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readerGoToPage => 'Go to page';
 
   @override
+  String get readerNightMode => 'Night mode';
+
+  @override
+  String get readerDayMode => 'Day mode';
+
+  @override
+  String get readerLockRotation => 'Lock rotation';
+
+  @override
+  String get readerUnlockRotation => 'Allow rotation';
+
+  @override
   String get readerGo => 'Go';
 
   @override

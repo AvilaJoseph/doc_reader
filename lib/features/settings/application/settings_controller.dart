@@ -15,6 +15,8 @@ class SettingsController extends Notifier<AppSettings> {
   static const _readingThemeKey = 'settings.readingTheme';
   static const _fontSizeKey = 'settings.fontSize';
   static const _lineHeightKey = 'settings.lineHeight';
+  static const _pdfNightKey = 'settings.pdfNightMode';
+  static const _lockRotationKey = 'settings.lockRotation';
 
   @override
   AppSettings build() {
@@ -28,6 +30,8 @@ class SettingsController extends Notifier<AppSettings> {
       ),
       fontSize: prefs.getDouble(_fontSizeKey),
       lineHeight: prefs.getDouble(_lineHeightKey),
+      pdfNightMode: prefs.getBool(_pdfNightKey),
+      lockRotation: prefs.getBool(_lockRotationKey),
     );
   }
 
@@ -62,6 +66,20 @@ class SettingsController extends Notifier<AppSettings> {
       ref
           .read(sharedPreferencesProvider)
           .setDouble(_lineHeightKey, state.lineHeight),
+    );
+  }
+
+  void setPdfNightMode({required bool enabled}) {
+    state = state.copyWith(pdfNightMode: enabled);
+    unawaited(
+      ref.read(sharedPreferencesProvider).setBool(_pdfNightKey, enabled),
+    );
+  }
+
+  void setLockRotation({required bool enabled}) {
+    state = state.copyWith(lockRotation: enabled);
+    unawaited(
+      ref.read(sharedPreferencesProvider).setBool(_lockRotationKey, enabled),
     );
   }
 

@@ -31,6 +31,7 @@ const hl = [
     ['reader-docx-night','/reader/w','light',{'flutter.settings.readingTheme':'night'}],
     ['reader-md','/reader/m','light',{'flutter.settings.readingTheme':'sepia'}],
     ['reader-pdf','/reader/p','light',{}],
+    ['reader-pdf-night','/reader/p','light',{'flutter.settings.pdfNightMode':true,'flutter.settings.lockRotation':true}],
     ['reader-xlsx','/reader/x','light',{}],
     ['highlights','/highlights','light',{}],
     ['settings','/settings','light',{}],

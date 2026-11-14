@@ -43,7 +43,7 @@ class FlowReadingStyle {
 
   /// Línea de "Subrayar": azul clásico, algo más claro de noche.
   Color get underlineColor => theme.brightness == Brightness.dark
-      ? const Color(0xFF6EA8FF)
+      ? AppColors.underlineNight
       : AppColors.underline;
 
   Color highlightColor(int index) {

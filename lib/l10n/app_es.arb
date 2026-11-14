@@ -88,6 +88,10 @@
     }
   },
   "readerGoToPage": "Ir a la página",
+  "readerNightMode": "Modo noche",
+  "readerDayMode": "Modo día",
+  "readerLockRotation": "Bloquear giro",
+  "readerUnlockRotation": "Permitir giro",
   "readerGo": "Ir",
   "readerAppearance": "Lectura",
   "readerTextSize": "Tamaño de letra",

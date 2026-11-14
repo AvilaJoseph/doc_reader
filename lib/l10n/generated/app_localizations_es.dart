@@ -58,6 +58,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get kindText => 'Texto';
 
   @override
+  String get kindImage => 'Imagen';
+
+  @override
+  String get kindPresentation => 'PowerPoint';
+
+  @override
   String get addDocument => 'Añadir documento';
 
   @override
@@ -214,6 +220,39 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get filterFavorites => 'Favoritos';
+
+  @override
+  String get documentFavoriteAdd => 'Añadir a favoritos';
+
+  @override
+  String get documentFavoriteRemove => 'Quitar de favoritos';
+
+  @override
+  String get librarySort => 'Ordenar';
+
+  @override
+  String get librarySortRecent => 'Recientes';
+
+  @override
+  String get librarySortTitle => 'Nombre';
+
+  @override
+  String get librarySortAdded => 'Añadidos';
+
+  @override
+  String get librarySortProgress => 'Progreso';
+
+  @override
+  String get highlightsExport => 'Exportar subrayados';
+
+  @override
+  String get readerListen => 'Escuchar';
+
+  @override
+  String get readerListenStop => 'Detener lectura';
+
+  @override
   String get readerGo => 'Ir';
 
   @override
@@ -309,10 +348,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsFormatsBody =>
-      'PDF, Word (.docx), Excel (.xlsx), CSV, TXT y Markdown.';
+      'PDF, Word (.docx, .rtf), Excel (.xlsx), PowerPoint (.pptx), CSV, TXT, Markdown, libros EPUB e imágenes (JPG, PNG, WebP).';
 
   @override
   String get annotationUnderline => 'Subrayar';
+
+  @override
+  String get annotationLookUp => 'Traducir o definir';
 
   @override
   String get annotationNote => 'Nota';

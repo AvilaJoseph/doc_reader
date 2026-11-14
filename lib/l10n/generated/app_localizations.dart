@@ -194,6 +194,18 @@ abstract class AppLocalizations {
   /// **'Texto'**
   String get kindText;
 
+  /// No description provided for @kindImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Imagen'**
+  String get kindImage;
+
+  /// No description provided for @kindPresentation.
+  ///
+  /// In es, this message translates to:
+  /// **'PowerPoint'**
+  String get kindPresentation;
+
   /// No description provided for @addDocument.
   ///
   /// In es, this message translates to:
@@ -458,6 +470,72 @@ abstract class AppLocalizations {
   /// **'Página {page}'**
   String readerBookmarkPage(int page);
 
+  /// No description provided for @filterFavorites.
+  ///
+  /// In es, this message translates to:
+  /// **'Favoritos'**
+  String get filterFavorites;
+
+  /// No description provided for @documentFavoriteAdd.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir a favoritos'**
+  String get documentFavoriteAdd;
+
+  /// No description provided for @documentFavoriteRemove.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar de favoritos'**
+  String get documentFavoriteRemove;
+
+  /// No description provided for @librarySort.
+  ///
+  /// In es, this message translates to:
+  /// **'Ordenar'**
+  String get librarySort;
+
+  /// No description provided for @librarySortRecent.
+  ///
+  /// In es, this message translates to:
+  /// **'Recientes'**
+  String get librarySortRecent;
+
+  /// No description provided for @librarySortTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre'**
+  String get librarySortTitle;
+
+  /// No description provided for @librarySortAdded.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadidos'**
+  String get librarySortAdded;
+
+  /// No description provided for @librarySortProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Progreso'**
+  String get librarySortProgress;
+
+  /// No description provided for @highlightsExport.
+  ///
+  /// In es, this message translates to:
+  /// **'Exportar subrayados'**
+  String get highlightsExport;
+
+  /// No description provided for @readerListen.
+  ///
+  /// In es, this message translates to:
+  /// **'Escuchar'**
+  String get readerListen;
+
+  /// No description provided for @readerListenStop.
+  ///
+  /// In es, this message translates to:
+  /// **'Detener lectura'**
+  String get readerListenStop;
+
   /// No description provided for @readerGo.
   ///
   /// In es, this message translates to:
@@ -635,7 +713,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsFormatsBody.
   ///
   /// In es, this message translates to:
-  /// **'PDF, Word (.docx), Excel (.xlsx), CSV, TXT y Markdown.'**
+  /// **'PDF, Word (.docx, .rtf), Excel (.xlsx), PowerPoint (.pptx), CSV, TXT, Markdown, libros EPUB e imágenes (JPG, PNG, WebP).'**
   String get settingsFormatsBody;
 
   /// No description provided for @annotationUnderline.
@@ -643,6 +721,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Subrayar'**
   String get annotationUnderline;
+
+  /// No description provided for @annotationLookUp.
+  ///
+  /// In es, this message translates to:
+  /// **'Traducir o definir'**
+  String get annotationLookUp;
 
   /// No description provided for @annotationNote.
   ///

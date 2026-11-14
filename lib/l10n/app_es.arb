@@ -16,6 +16,8 @@
   "kindWord": "Word",
   "kindSpreadsheet": "Excel",
   "kindText": "Texto",
+  "kindImage": "Imagen",
+  "kindPresentation": "PowerPoint",
   "addDocument": "Añadir documento",
   "addDocumentHint": "PDF, Word, Excel o texto",
   "libraryEmptyTitle": "Tu biblioteca está vacía",
@@ -97,8 +99,12 @@
   "readerSearchCount": "{current} de {total}",
   "@readerSearchCount": {
     "placeholders": {
-      "current": {"type": "int"},
-      "total": {"type": "int"}
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "readerSearchNone": "Sin resultados",
@@ -113,9 +119,22 @@
   "readerBookmarkPage": "Página {page}",
   "@readerBookmarkPage": {
     "placeholders": {
-      "page": {"type": "int"}
+      "page": {
+        "type": "int"
+      }
     }
   },
+  "filterFavorites": "Favoritos",
+  "documentFavoriteAdd": "Añadir a favoritos",
+  "documentFavoriteRemove": "Quitar de favoritos",
+  "librarySort": "Ordenar",
+  "librarySortRecent": "Recientes",
+  "librarySortTitle": "Nombre",
+  "librarySortAdded": "Añadidos",
+  "librarySortProgress": "Progreso",
+  "highlightsExport": "Exportar subrayados",
+  "readerListen": "Escuchar",
+  "readerListenStop": "Detener lectura",
   "readerGo": "Ir",
   "readerAppearance": "Lectura",
   "readerTextSize": "Tamaño de letra",
@@ -159,8 +178,9 @@
   "settingsPrivacyTitle": "Sin anuncios ni rastreo",
   "settingsPrivacyBody": "Folio no muestra publicidad ni recopila datos. Tus documentos se quedan en tu dispositivo.",
   "settingsFormatsTitle": "Formatos compatibles",
-  "settingsFormatsBody": "PDF, Word (.docx), Excel (.xlsx), CSV, TXT y Markdown.",
+  "settingsFormatsBody": "PDF, Word (.docx, .rtf), Excel (.xlsx), PowerPoint (.pptx), CSV, TXT, Markdown, libros EPUB e imágenes (JPG, PNG, WebP).",
   "annotationUnderline": "Subrayar",
+  "annotationLookUp": "Traducir o definir",
   "annotationNote": "Nota",
   "annotationNoteHint": "Escribe tu nota…",
   "annotationShareTitle": "Fragmento de «{title}»",

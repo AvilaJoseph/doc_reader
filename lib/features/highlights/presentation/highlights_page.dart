@@ -8,12 +8,14 @@ import 'package:doc_reader/core/theme/app_typography.dart';
 import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/core/widgets/empty_state.dart';
 import 'package:doc_reader/features/highlights/application/highlights_controller.dart';
+import 'package:doc_reader/features/highlights/application/highlights_export.dart';
 import 'package:doc_reader/features/highlights/domain/highlight.dart';
 import 'package:doc_reader/features/highlights/presentation/note_dialog.dart';
 import 'package:doc_reader/features/library/application/library_controller.dart';
 import 'package:doc_reader/l10n/l10n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
 /// Todos los subrayados, agrupados por documento.
 class HighlightsPage extends ConsumerWidget {
@@ -83,9 +85,26 @@ class HighlightsPage extends ConsumerWidget {
                           top: AppSpacing.lg,
                           bottom: AppSpacing.sm,
                         ),
-                        child: Text(
-                          titles[entry.key]!,
-                          style: Theme.of(context).textTheme.titleMedium,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                titles[entry.key]!,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: l10n.highlightsExport,
+                              icon: const Icon(Icons.ios_share_rounded),
+                              iconSize: 20,
+                              visualDensity: VisualDensity.compact,
+                              onPressed: () => _export(
+                                context,
+                                titles[entry.key]!,
+                                entry.value,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       for (final h in entry.value)
@@ -107,6 +126,20 @@ class HighlightsPage extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  /// Comparte los subrayados del documento como Markdown.
+  void _export(BuildContext context, String title, List<Highlight> list) {
+    final l10n = context.l10n;
+    final text = highlightsToMarkdown(
+      title: title,
+      highlights: list,
+      pageLabel: l10n.highlightsPage,
+      noteLabel: l10n.annotationNote,
+    );
+    unawaited(
+      SharePlus.instance.share(ShareParams(text: text, subject: title)),
     );
   }
 

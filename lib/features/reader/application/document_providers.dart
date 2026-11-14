@@ -4,7 +4,10 @@ import 'package:doc_reader/features/library/application/library_providers.dart';
 import 'package:doc_reader/features/library/domain/document_kind.dart';
 import 'package:doc_reader/features/library/domain/library_document.dart';
 import 'package:doc_reader/features/reader/formats/flow/docx_parser.dart';
+import 'package:doc_reader/features/reader/formats/flow/epub_parser.dart';
 import 'package:doc_reader/features/reader/formats/flow/flow_document.dart';
+import 'package:doc_reader/features/reader/formats/flow/pptx_parser.dart';
+import 'package:doc_reader/features/reader/formats/flow/rtf_parser.dart';
 import 'package:doc_reader/features/reader/formats/flow/text_parser.dart';
 import 'package:doc_reader/features/reader/formats/spreadsheet/csv_parser.dart';
 import 'package:doc_reader/features/reader/formats/spreadsheet/workbook.dart';
@@ -48,6 +51,9 @@ final flowDocumentProvider = FutureProvider.autoDispose
       final ext = DocumentKind.extensionOf(fileName);
       return await switch (ext) {
         'docx' => compute(parseDocx, bytes),
+        'rtf' => compute(parseRtf, bytes),
+        'epub' => compute(parseEpub, bytes),
+        'pptx' => compute(parsePptx, bytes),
         'md' || 'markdown' => compute(parseMarkdown, bytes),
         _ => compute(parsePlainText, bytes),
       };

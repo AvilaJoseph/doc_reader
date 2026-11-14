@@ -36,6 +36,8 @@ abstract final class AppColors {
   static const Color kindWord = Color(0xFF3F5E9A);
   static const Color kindSheet = Color(0xFF2F7652);
   static const Color kindText = Color(0xFF6B6259);
+  static const Color kindImage = Color(0xFF7A5A9E);
+  static const Color kindSlides = Color(0xFFC0702E);
 
   /// Selección de texto: el azul clásico de Android.
   static const Color selection = Color(0x662F7CF6);

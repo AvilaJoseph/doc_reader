@@ -52,7 +52,8 @@ class _LibraryContent extends ConsumerWidget {
     final docs = ref.watch(filteredLibraryProvider).value ?? const [];
     final isFiltering =
         ref.watch(librarySearchProvider).isNotEmpty ||
-        ref.watch(libraryKindFilterProvider) != null;
+        ref.watch(libraryKindFilterProvider) != null ||
+        ref.watch(libraryFavoritesOnlyProvider);
     final width = MediaQuery.sizeOf(context).width;
     final columns = (width / 180).floor().clamp(2, 6);
 
@@ -74,6 +75,8 @@ class _LibraryContent extends ConsumerWidget {
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                 ),
+                const _SortButton(),
+                const SizedBox(width: AppSpacing.sm),
                 CircleIconButton(
                   icon: Icons.add_rounded,
                   tooltip: l10n.addDocument,
@@ -201,13 +204,19 @@ class _KindFilterChips extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final selected = ref.watch(libraryKindFilterProvider);
+    final favorites = ref.watch(libraryFavoritesOnlyProvider);
     final notifier = ref.read(libraryKindFilterProvider.notifier);
+    final favoritesNotifier = ref.read(libraryFavoritesOnlyProvider.notifier);
+    // null = Todos; la segunda entrada es Favoritos; el resto, tipos.
     final options = <(DocumentKind?, String)>[
       (null, l10n.filterAll),
+      (null, l10n.filterFavorites),
       (DocumentKind.pdf, l10n.kindPdf),
       (DocumentKind.word, l10n.kindWord),
       (DocumentKind.spreadsheet, l10n.kindSpreadsheet),
+      (DocumentKind.presentation, l10n.kindPresentation),
       (DocumentKind.text, l10n.kindText),
+      (DocumentKind.image, l10n.kindImage),
     ];
     return SizedBox(
       height: 40,
@@ -218,10 +227,14 @@ class _KindFilterChips extends ConsumerWidget {
         separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
         itemBuilder: (context, index) {
           final (kind, label) = options[index];
+          final isFavorites = index == 1;
           return FilterPill(
             label: label,
-            selected: kind == selected,
-            onTap: () => notifier.kind = kind,
+            selected: isFavorites ? favorites : !favorites && kind == selected,
+            onTap: () {
+              favoritesNotifier.enabled = isFavorites;
+              notifier.kind = kind;
+            },
           );
         },
       ),
@@ -272,6 +285,46 @@ class _EmptyLibrary extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Botón de orden: un menú corto con las cuatro opciones.
+class _SortButton extends ConsumerWidget {
+  const new();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final current = ref.watch(librarySortProvider);
+    final scheme = Theme.of(context).colorScheme;
+    return PopupMenuButton<LibrarySort>(
+      tooltip: l10n.librarySort,
+      initialValue: current,
+      onSelected: ref.read(librarySortProvider.notifier).select,
+      itemBuilder: (context) => [
+        for (final (sort, label) in [
+          (LibrarySort.recent, l10n.librarySortRecent),
+          (LibrarySort.title, l10n.librarySortTitle),
+          (LibrarySort.added, l10n.librarySortAdded),
+          (LibrarySort.progress, l10n.librarySortProgress),
+        ])
+          CheckedPopupMenuItem(
+            value: sort,
+            checked: sort == current,
+            child: Text(label),
+          ),
+      ],
+      child: SizedBox.square(
+        dimension: 40,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerHigh,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.sort_rounded, size: 20),
+        ),
       ),
     );
   }

@@ -118,6 +118,8 @@ class MainActivity : FlutterActivity() {
             "text/markdown" to "md",
             "text/x-markdown" to "md",
             "text/comma-separated-values" to "csv",
+            "text/rtf" to "rtf",
+            "application/rtf" to "rtf",
         )
     }
 }

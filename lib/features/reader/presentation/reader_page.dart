@@ -7,6 +7,7 @@ import 'package:doc_reader/features/library/domain/document_kind.dart';
 import 'package:doc_reader/features/library/presentation/widgets/document_actions_sheet.dart';
 import 'package:doc_reader/features/reader/application/document_providers.dart';
 import 'package:doc_reader/features/reader/presentation/flow_reader_screen.dart';
+import 'package:doc_reader/features/reader/presentation/image_reader_screen.dart';
 import 'package:doc_reader/features/reader/presentation/pdf_reader_screen.dart';
 import 'package:doc_reader/features/reader/presentation/spreadsheet_reader_screen.dart';
 import 'package:doc_reader/features/settings/application/settings_controller.dart';
@@ -110,10 +111,16 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
         library: ref.read(libraryControllerProvider.notifier),
         initialPage: widget.initialLocation,
       ),
-      DocumentKind.word || DocumentKind.text => FlowReaderScreen(
+      DocumentKind.word ||
+      DocumentKind.text ||
+      DocumentKind.presentation => FlowReaderScreen(
         document: document,
         onMore: onMore,
         initialBlock: widget.initialLocation,
+      ),
+      DocumentKind.image => ImageReaderScreen(
+        document: document,
+        onMore: onMore,
       ),
       DocumentKind.spreadsheet => SpreadsheetReaderScreen(
         document: document,

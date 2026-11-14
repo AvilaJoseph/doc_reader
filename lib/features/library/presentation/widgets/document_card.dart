@@ -29,6 +29,8 @@ class DocumentCard extends StatelessWidget {
       DocumentKind.word => l10n.kindWord,
       DocumentKind.spreadsheet => l10n.kindSpreadsheet,
       DocumentKind.text => l10n.kindText,
+      DocumentKind.image => l10n.kindImage,
+      DocumentKind.presentation => l10n.kindPresentation,
     };
     final size = formatFileSize(document.sizeBytes);
     final status = document.isFinished
@@ -49,11 +51,23 @@ class DocumentCard extends StatelessWidget {
           children: [
             DocumentCover(document: document),
             const SizedBox(height: AppSpacing.sm + 2),
-            Text(
-              document.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.titleSmall,
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    document.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleSmall,
+                  ),
+                ),
+                if (document.favorite)
+                  Icon(
+                    Icons.star_rounded,
+                    size: 16,
+                    color: theme.colorScheme.primary,
+                  ),
+              ],
             ),
             const SizedBox(height: 2),
             Text(

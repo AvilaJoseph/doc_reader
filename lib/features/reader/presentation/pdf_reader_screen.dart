@@ -6,6 +6,7 @@ import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/core/widgets/floating_pill.dart';
 import 'package:doc_reader/core/widgets/selection_handle.dart';
 import 'package:doc_reader/features/highlights/application/highlights_controller.dart';
+import 'package:doc_reader/features/highlights/application/text_lookup.dart';
 import 'package:doc_reader/features/highlights/domain/highlight.dart';
 import 'package:doc_reader/features/highlights/presentation/annotation_actions.dart';
 import 'package:doc_reader/features/highlights/presentation/annotation_toolbar.dart';
@@ -20,6 +21,7 @@ import 'package:doc_reader/features/reader/presentation/widgets/reader_scaffold.
 import 'package:doc_reader/features/reader/presentation/widgets/reader_search_bar.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_states.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_top_bar.dart';
+import 'package:doc_reader/features/reader/read_aloud/read_aloud_controller.dart';
 import 'package:doc_reader/features/reader/search/text_search.dart';
 import 'package:doc_reader/features/settings/application/settings_controller.dart';
 import 'package:doc_reader/l10n/l10n.dart';
@@ -158,6 +160,9 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
         onNote: () => _withSelection(params, annotations.note),
         onCopy: () =>
             _withSelection(params, (d) => annotations.copy(joined(d))),
+        onLookUp: annotations.canLookUp
+            ? () => _withSelection(params, (d) => annotations.lookUp(joined(d)))
+            : null,
         onShare: () =>
             _withSelection(params, (d) => annotations.share(joined(d))),
         onRemove: annotations.touchesExisting(_selection)
@@ -286,6 +291,26 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
     await _controller.goToPage(pageNumber: page.clamp(1, _pageCount));
   }
 
+  bool _listening = false;
+
+  /// Lee en voz alta desde la página actual, pasando de página sola.
+  void _toggleListen() {
+    final aloud = ref.read(readAloudControllerProvider.notifier);
+    if (_listening) {
+      unawaited(aloud.stop());
+      return;
+    }
+    if (!_controller.isReady) return;
+    final pages = _controller.document.pages;
+    unawaited(
+      aloud.play(
+        from: _page - 1,
+        count: pages.length,
+        source: (i) async => (await pages[i].loadText())?.fullText,
+      ),
+    );
+  }
+
   /// Páginas marcadas del documento (se actualiza en cada build).
   List<int> _bookmarks = const [];
 
@@ -315,6 +340,14 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
   @override
   Widget build(BuildContext context) {
     _highlights = ref.watch(documentHighlightsProvider(widget.document.id));
+    // Precarga las apps de traducir/definir para el menú de selección.
+    ref.watch(textLookupActionsProvider);
+    _listening = ref.watch(
+      readAloudControllerProvider.select((s) => s.isPlaying),
+    );
+    ref.listen(readAloudControllerProvider.select((s) => s.index), (_, i) {
+      if (i != null && i + 1 != _page) unawaited(_goTo(i + 1));
+    });
     _bookmarks = ref.watch(
       libraryDocumentProvider(widget.document.id)
           .select((doc) => doc?.bookmarks ?? const <int>[]),
@@ -441,9 +474,12 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
             onPressed: _openSearch,
           ),
           PillButton(
-            icon: Icons.chevron_left_rounded,
-            tooltip: MaterialLocalizations.of(context).previousPageTooltip,
-            onPressed: _page > 1 ? () => _goTo(_page - 1) : null,
+            icon: _listening ? Icons.stop_rounded : Icons.headphones_rounded,
+            tooltip: _listening
+                ? context.l10n.readerListenStop
+                : context.l10n.readerListen,
+            selected: _listening,
+            onPressed: _toggleListen,
           ),
           PillButton(
             icon: Icons.menu_book_outlined,
@@ -451,11 +487,6 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
             tooltip: context.l10n.readerNavigate,
             selected: true,
             onPressed: _openNavigator,
-          ),
-          PillButton(
-            icon: Icons.chevron_right_rounded,
-            tooltip: MaterialLocalizations.of(context).nextPageTooltip,
-            onPressed: _page < _pageCount ? () => _goTo(_page + 1) : null,
           ),
           if (_bookmarks.contains(_page))
             PillButton(

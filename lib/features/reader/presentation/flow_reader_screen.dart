@@ -6,6 +6,7 @@ import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/core/widgets/empty_state.dart';
 import 'package:doc_reader/core/widgets/floating_pill.dart';
 import 'package:doc_reader/features/highlights/application/highlights_controller.dart';
+import 'package:doc_reader/features/highlights/application/text_lookup.dart';
 import 'package:doc_reader/features/highlights/domain/highlight.dart';
 import 'package:doc_reader/features/highlights/presentation/annotation_actions.dart';
 import 'package:doc_reader/features/highlights/presentation/annotation_toolbar.dart';
@@ -17,6 +18,7 @@ import 'package:doc_reader/features/reader/formats/flow/flow_document.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_scaffold.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_search_bar.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_states.dart';
+import 'package:doc_reader/features/reader/read_aloud/read_aloud_controller.dart';
 import 'package:doc_reader/features/reader/search/text_search.dart';
 import 'package:doc_reader/features/settings/application/settings_controller.dart';
 import 'package:doc_reader/features/settings/presentation/reading_controls.dart';
@@ -151,6 +153,30 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
     return false;
   }
 
+  /// Lee en voz alta desde el párrafo por el que se va.
+  void _toggleListen() {
+    final aloud = ref.read(readAloudControllerProvider.notifier);
+    if (ref.read(readAloudControllerProvider).isPlaying) {
+      unawaited(aloud.stop());
+      return;
+    }
+    final blocks = ref
+        .read(flowDocumentProvider(widget.document.id))
+        .value
+        ?.blocks;
+    if (blocks == null || blocks.isEmpty) return;
+    unawaited(
+      aloud.play(
+        from: (_progress * blocks.length).floor().clamp(0, blocks.length - 1),
+        count: blocks.length,
+        source: (i) => switch (blocks[i]) {
+          final ParagraphBlock p => p.plainText,
+          _ => null,
+        },
+      ),
+    );
+  }
+
   void _openSearch() => setState(() => _searchOpen = true);
 
   void _closeSearch() {
@@ -239,8 +265,20 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsControllerProvider);
+    // Precarga las apps de traducir/definir para el menú de selección.
+    ref.watch(textLookupActionsProvider);
     final theme = settings.readingTheme;
     final flow = ref.watch(flowDocumentProvider(widget.document.id));
+    final listening = ref.watch(
+      readAloudControllerProvider.select((s) => s.isPlaying),
+    );
+    // Mientras se escucha, la lista acompaña al párrafo que suena.
+    ref.listen(readAloudControllerProvider.select((s) => s.index), (_, index) {
+      final count = flow.value?.blocks.length;
+      if (index == null || count == null) return;
+      setState(() => _targetBlock = index);
+      _scrollToBlock(index, count);
+    });
 
     // Con la búsqueda abierta, "atrás" la cierra en vez de salir.
     return PopScope(
@@ -286,6 +324,16 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
                   icon: Icons.search_rounded,
                   tooltip: context.l10n.readerSearch,
                   onPressed: _openSearch,
+                ),
+                PillButton(
+                  icon: listening
+                      ? Icons.stop_rounded
+                      : Icons.headphones_rounded,
+                  tooltip: listening
+                      ? context.l10n.readerListenStop
+                      : context.l10n.readerListen,
+                  selected: listening,
+                  onPressed: _toggleListen,
                 ),
                 PillButton(
                   icon: Icons.text_fields_rounded,
@@ -421,6 +469,9 @@ class _FlowReaderScreenState extends ConsumerState<FlowReaderScreen> {
           run(() => annotations.mark(drafts, 0, HighlightStyle.underline)),
       onNote: () => run(() => unawaited(annotations.note(drafts))),
       onCopy: () => run(() => annotations.copy(text)),
+      onLookUp: annotations.canLookUp
+          ? () => run(() => unawaited(annotations.lookUp(text)))
+          : null,
       onShare: () => run(() => annotations.share(text)),
       onRemove: annotations.touchesExisting(drafts)
           ? () => run(() => annotations.remove(drafts))

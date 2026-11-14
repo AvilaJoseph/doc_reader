@@ -3,21 +3,28 @@ import 'package:doc_reader/core/theme/app_theme.dart';
 import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/l10n/l10n.dart';
 
-/// Barra flotante sobre la selección: colores de subrayado y copiar.
-class HighlightToolbar extends StatelessWidget {
+/// Menú flotante sobre una selección de texto, común a todos los visores:
+/// colores de resaltado, subrayar, nota, copiar, compartir y quitar.
+class AnnotationToolbar extends StatelessWidget {
   const new({
     required this.anchors,
     required this.onColor,
+    required this.onUnderline,
+    required this.onNote,
     required this.onCopy,
+    required this.onShare,
     super.key,
     this.onRemove,
   });
 
   final TextSelectionToolbarAnchors anchors;
   final ValueChanged<int> onColor;
+  final VoidCallback onUnderline;
+  final VoidCallback onNote;
   final VoidCallback onCopy;
+  final VoidCallback onShare;
 
-  /// Solo se muestra si la selección toca un subrayado existente.
+  /// Solo se muestra si la selección toca una marca existente.
   final VoidCallback? onRemove;
 
   @override
@@ -32,14 +39,14 @@ class HighlightToolbar extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRadii.field),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
+              color: Colors.black.withValues(alpha: 0.22),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 4),
           child: child,
         ),
       ),
@@ -52,9 +59,24 @@ class HighlightToolbar extends StatelessWidget {
           ),
         const _Separator(),
         _ToolbarIcon(
+          icon: Icons.format_underlined_rounded,
+          label: l10n.annotationUnderline,
+          onTap: onUnderline,
+        ),
+        _ToolbarIcon(
+          icon: Icons.sticky_note_2_outlined,
+          label: l10n.annotationNote,
+          onTap: onNote,
+        ),
+        _ToolbarIcon(
           icon: Icons.copy_rounded,
           label: l10n.highlightCopy,
           onTap: onCopy,
+        ),
+        _ToolbarIcon(
+          icon: Icons.share_outlined,
+          label: l10n.documentShare,
+          onTap: onShare,
         ),
         if (onRemove != null)
           _ToolbarIcon(
@@ -76,21 +98,24 @@ class _ColorDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: label,
-      child: InkResponse(
-        onTap: onTap,
-        radius: 20,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white24),
+    return Tooltip(
+      message: label,
+      child: Semantics(
+        button: true,
+        label: label,
+        child: InkResponse(
+          onTap: onTap,
+          radius: 18,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white24),
+              ),
+              child: const SizedBox.square(dimension: 20),
             ),
-            child: const SizedBox.square(dimension: 20),
           ),
         ),
       ),
@@ -110,6 +135,9 @@ class _ToolbarIcon extends StatelessWidget {
     return IconButton(
       tooltip: label,
       onPressed: onTap,
+      visualDensity: VisualDensity.compact,
+      constraints: const BoxConstraints(minWidth: 36, minHeight: 44),
+      padding: const EdgeInsets.symmetric(horizontal: 6),
       icon: Icon(icon, size: 19, color: AppColors.pillInk),
     );
   }
@@ -120,7 +148,7 @@ class _Separator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const Padding(
-    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 14),
+    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 14),
     child: SizedBox(
       width: 1,
       height: 18,

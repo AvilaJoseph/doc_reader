@@ -455,7 +455,7 @@ abstract class AppLocalizations {
   /// No description provided for @highlightsEmptyBody.
   ///
   /// In es, this message translates to:
-  /// **'Selecciona texto en un documento de Word o de texto y elige un color para guardarlo aquí.'**
+  /// **'Selecciona texto en cualquier documento y elige un color, subraya o añade una nota.'**
   String get highlightsEmptyBody;
 
   /// No description provided for @highlightDeleted.
@@ -535,6 +535,54 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'PDF, Word (.docx), Excel (.xlsx), CSV, TXT y Markdown.'**
   String get settingsFormatsBody;
+
+  /// No description provided for @annotationUnderline.
+  ///
+  /// In es, this message translates to:
+  /// **'Subrayar'**
+  String get annotationUnderline;
+
+  /// No description provided for @annotationNote.
+  ///
+  /// In es, this message translates to:
+  /// **'Nota'**
+  String get annotationNote;
+
+  /// No description provided for @annotationNoteHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe tu nota…'**
+  String get annotationNoteHint;
+
+  /// No description provided for @annotationShareTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Fragmento de «{title}»'**
+  String annotationShareTitle(String title);
+
+  /// No description provided for @highlightsPage.
+  ///
+  /// In es, this message translates to:
+  /// **'Pág. {page}'**
+  String highlightsPage(int page);
+
+  /// No description provided for @highlightsEditNote.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar nota'**
+  String get highlightsEditNote;
+
+  /// No description provided for @highlightsAddNote.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir nota'**
+  String get highlightsAddNote;
+
+  /// No description provided for @highlightsUnderlined.
+  ///
+  /// In es, this message translates to:
+  /// **'Subrayado'**
+  String get highlightsUnderlined;
 }
 
 class _AppLocalizationsDelegate

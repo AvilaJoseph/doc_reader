@@ -37,7 +37,14 @@ abstract final class AppColors {
   static const Color kindSheet = Color(0xFF2F7652);
   static const Color kindText = Color(0xFF6B6259);
 
-  /// Colores de subrayado (fondo translúcido sobre el texto).
+  /// Selección de texto: el azul clásico de Android.
+  static const Color selection = Color(0x662F7CF6);
+  static const Color selectionHandle = Color(0xFF2F7CF6);
+
+  /// Color de la línea de "Subrayar".
+  static const Color underline = Color(0xFF2F7CF6);
+
+  /// Colores del resaltador (fondo translúcido sobre el texto).
   static const List<Color> highlights = [
     Color(0xFFF3DC8C), // mantequilla
     Color(0xFFB9E3D6), // menta

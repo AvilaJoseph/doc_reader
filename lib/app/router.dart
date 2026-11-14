@@ -46,7 +46,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.readerPattern,
         pageBuilder: (context, state) => MaterialPage(
           key: state.pageKey,
-          child: ReaderPage(documentId: state.pathParameters['id']!),
+          child: ReaderPage(
+            documentId: state.pathParameters['id']!,
+            initialLocation: int.tryParse(
+              state.uri.queryParameters['at'] ?? '',
+            ),
+          ),
         ),
       ),
     ],

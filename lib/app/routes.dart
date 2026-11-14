@@ -6,5 +6,7 @@ abstract final class AppRoutes {
   static const settings = '/settings';
   static const readerPattern = '/reader/:id';
 
-  static String reader(String documentId) => '/reader/$documentId';
+  /// Lector. [at] es la página (PDF) o el bloque (texto) donde abrir.
+  static String reader(String documentId, {int? at}) =>
+      at == null ? '/reader/$documentId' : '/reader/$documentId?at=$at';
 }

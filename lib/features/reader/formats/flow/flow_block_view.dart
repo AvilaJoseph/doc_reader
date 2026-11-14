@@ -1,14 +1,11 @@
-import 'dart:async';
-
 import 'package:doc_reader/core/theme/app_colors.dart';
 import 'package:doc_reader/core/theme/app_typography.dart';
 import 'package:doc_reader/core/theme/reading_theme.dart';
 import 'package:doc_reader/core/ui.dart';
 import 'package:doc_reader/features/highlights/domain/highlight.dart';
+import 'package:doc_reader/features/highlights/presentation/annotation_toolbar.dart';
 import 'package:doc_reader/features/reader/formats/flow/flow_document.dart';
 import 'package:doc_reader/features/reader/formats/flow/highlight_spans.dart';
-import 'package:doc_reader/features/reader/formats/flow/highlight_toolbar.dart';
-import 'package:flutter/services.dart';
 
 /// Parámetros tipográficos del lector.
 @immutable
@@ -44,6 +41,11 @@ class FlowReadingStyle {
     );
   }
 
+  /// Línea de "Subrayar": azul clásico, algo más claro de noche.
+  Color get underlineColor => theme.brightness == Brightness.dark
+      ? const Color(0xFF6EA8FF)
+      : AppColors.underline;
+
   Color highlightColor(int index) {
     final color = AppColors.highlights[index % AppColors.highlights.length];
     return theme.brightness == Brightness.dark
@@ -52,18 +54,24 @@ class FlowReadingStyle {
   }
 }
 
-/// Acciones de subrayado sobre un bloque.
-typedef HighlightCallback = void Function(
-  int blockIndex,
-  int start,
-  int end,
-  int colorIndex,
-);
-typedef RemoveHighlightCallback = void Function(
-  int blockIndex,
-  int start,
-  int end,
-);
+/// Qué hacer con una selección de texto. Lo implementa el lector.
+@immutable
+class FlowAnnotationActions {
+  const new({
+    required this.onMark,
+    required this.onNote,
+    required this.onRemove,
+    required this.onCopy,
+    required this.onShare,
+  });
+
+  final void Function(HighlightDraft draft, int color, HighlightStyle style)
+  onMark;
+  final void Function(HighlightDraft draft) onNote;
+  final void Function(HighlightDraft draft) onRemove;
+  final void Function(String text) onCopy;
+  final void Function(String text) onShare;
+}
 
 /// Pinta un [FlowBlock].
 class FlowBlockView extends StatelessWidget {
@@ -72,9 +80,7 @@ class FlowBlockView extends StatelessWidget {
     required this.blockIndex,
     required this.style,
     required this.highlights,
-    required this.onHighlight,
-    required this.onRemoveHighlight,
-    required this.onCopy,
+    required this.actions,
     super.key,
   });
 
@@ -82,9 +88,7 @@ class FlowBlockView extends StatelessWidget {
   final int blockIndex;
   final FlowReadingStyle style;
   final List<Highlight> highlights;
-  final HighlightCallback onHighlight;
-  final RemoveHighlightCallback onRemoveHighlight;
-  final ValueChanged<String> onCopy;
+  final FlowAnnotationActions actions;
 
   @override
   Widget build(BuildContext context) {
@@ -108,6 +112,7 @@ class FlowBlockView extends StatelessWidget {
           highlights: highlights,
           styleFor: (run) => _runStyle(base, run),
           colorFor: style.highlightColor,
+          underlineColor: style.underlineColor,
         ),
       ),
       textAlign: switch (paragraph.alignment) {
@@ -116,7 +121,7 @@ class FlowBlockView extends StatelessWidget {
         FlowAlignment.end => TextAlign.end,
         FlowAlignment.justify => TextAlign.justify,
       },
-      selectionColor: style.theme.ink.withValues(alpha: 0.14),
+      selectionColor: AppColors.selection,
       contextMenuBuilder: (context, state) => _toolbar(state, paragraph),
     );
 
@@ -185,21 +190,38 @@ class FlowBlockView extends StatelessWidget {
         );
     }
 
-    return HighlightToolbar(
+    final draft = HighlightDraft(
+      blockIndex: blockIndex,
+      start: start,
+      end: end,
+      text: paragraph.plainText.substring(start, end),
+    );
+
+    return AnnotationToolbar(
       anchors: state.contextMenuAnchors,
       onColor: (color) {
-        onHighlight(blockIndex, start, end, color);
+        actions.onMark(draft, color, HighlightStyle.highlight);
         finish();
       },
-      onCopy: () {
-        final selected = paragraph.plainText.substring(start, end);
-        unawaited(Clipboard.setData(ClipboardData(text: selected)));
-        onCopy(selected);
+      onUnderline: () {
+        actions.onMark(draft, 0, HighlightStyle.underline);
         finish();
+      },
+      onNote: () {
+        finish();
+        actions.onNote(draft);
+      },
+      onCopy: () {
+        actions.onCopy(draft.text);
+        finish();
+      },
+      onShare: () {
+        finish();
+        actions.onShare(draft.text);
       },
       onRemove: touchesHighlight
           ? () {
-              onRemoveHighlight(blockIndex, start, end);
+              actions.onRemove(draft);
               finish();
             }
           : null,

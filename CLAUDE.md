@@ -7,6 +7,23 @@ píldora flotante y subrayados de colores.
 
 Idioma del proyecto: **español** (UI, comentarios, commits y docs).
 
+## Principio rector: velocidad y sencillez
+
+Los lectores habituales son lentos y confusos; Folio gana siendo **rápido,
+simple y eficiente**. Toda decisión pasa por este filtro:
+
+- **Abrir al instante**: nada pesado en el arranque ni en `build()`;
+  parsear en isolates (`compute`), cargar perezosamente (listas `.builder`,
+  miniaturas a baja resolución) y cachear lo ya calculado.
+- **Menos es más**: cada pantalla con una acción principal clara; nada de
+  menús anidados, diálogos innecesarios ni opciones que casi nadie usa. Si
+  una función complica la UI, va en "Más opciones" o no va.
+- **Pocos toques**: lo frecuente (abrir, seguir leyendo, subrayar) a uno o
+  dos toques. Recordar siempre la posición y las preferencias.
+- **Sin esperas visibles**: mostrar contenido parcial antes que un spinner
+  largo; animaciones cortas (≤ 250 ms).
+- Antes de añadir una dependencia, valorar su peso y su coste de arranque.
+
 ## Comandos
 
 ```bash
@@ -103,6 +120,8 @@ Detalle en `docs/ARCHITECTURE.md`; sistema de diseño en `docs/DESIGN.md`.
 
 ## Pendiente / ideas
 
+- Selección entre párrafos distintos en Word/TXT (hoy cada párrafo se
+  selecciona por separado).
 - "Abrir con…" desde otras apps (intent VIEW en Android, Document Types en
   iOS) reutilizando `ImportCandidate`.
 - Búsqueda dentro del documento, marcadores, índice (TOC) de PDF.

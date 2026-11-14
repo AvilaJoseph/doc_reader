@@ -12,6 +12,7 @@ List<TextSpan> buildHighlightedSpans({
   required List<Highlight> highlights,
   required TextStyle Function(TextRun run) styleFor,
   required Color Function(int colorIndex) colorFor,
+  required Color underlineColor,
 }) {
   final sorted = [...highlights]..sort((a, b) => a.start.compareTo(b.start));
   final spans = <TextSpan>[];
@@ -42,9 +43,21 @@ List<TextSpan> buildHighlightedSpans({
       spans.add(
         TextSpan(
           text: run.text.substring(start - runStart, end - runStart),
-          style: active == null
-              ? style
-              : style.copyWith(backgroundColor: colorFor(active.colorIndex)),
+          style: switch (active) {
+            null => style,
+            Highlight(style: HighlightStyle.underline) => style.copyWith(
+              decoration: TextDecoration.underline,
+              decorationColor: underlineColor,
+              decorationThickness: 2.2,
+            ),
+            final h => style.copyWith(
+              backgroundColor: colorFor(h.colorIndex),
+              // Las marcas con nota llevan una línea punteada discreta.
+              decoration: h.hasNote ? TextDecoration.underline : null,
+              decorationStyle: h.hasNote ? TextDecorationStyle.dotted : null,
+              decorationColor: h.hasNote ? underlineColor : null,
+            ),
+          },
         ),
       );
     }

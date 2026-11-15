@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:doc_reader/core/theme/app_theme.dart';
 import 'package:doc_reader/core/theme/app_typography.dart';
 import 'package:doc_reader/core/ui.dart';
+import 'package:doc_reader/features/settings/application/app_lock.dart';
 import 'package:doc_reader/features/settings/application/settings_controller.dart';
 import 'package:doc_reader/features/settings/presentation/reading_controls.dart';
 import 'package:doc_reader/l10n/l10n.dart';
@@ -82,6 +85,22 @@ class SettingsPage extends ConsumerWidget {
                 ],
               ),
             ),
+            if (ref.watch(appLockSupportedProvider).value ?? false)
+              _Section(
+                title: l10n.settingsSecurity,
+                child: SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  secondary: const Icon(Icons.fingerprint_rounded),
+                  title: Text(l10n.settingsAppLock),
+                  subtitle: Text(l10n.settingsAppLockBody),
+                  value: settings.appLock,
+                  onChanged: (enabled) => unawaited(
+                    ref
+                        .read(appLockProvider.notifier)
+                        .setEnabled(enabled: enabled, reason: l10n.lockReason),
+                  ),
+                ),
+              ),
             _Section(
               title: l10n.settingsAbout,
               child: Column(

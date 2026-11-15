@@ -126,5 +126,11 @@
   "signRemove": "Remove",
   "signSuffix": "signed",
   "signFailed": "Couldn't save the PDF",
-  "signSaved": "Saved as “{name}”"
+  "signSaved": "Saved as “{name}”",
+  "settingsSecurity": "Security",
+  "settingsAppLock": "Fingerprint lock",
+  "settingsAppLockBody": "Ask for your fingerprint or phone PIN when opening Folio.",
+  "lockTitle": "Folio is locked",
+  "lockUnlock": "Unlock",
+  "lockReason": "Unlock to open your documents"
 }

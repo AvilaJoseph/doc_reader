@@ -11,6 +11,7 @@ class AppSettings {
     this.lineHeight = 1.6,
     this.pdfNightMode = false,
     this.lockRotation = false,
+    this.appLock = false,
   });
 
   static const double minFontSize = 14;
@@ -29,6 +30,9 @@ class AppSettings {
   /// Mantiene la orientación actual mientras se lee.
   final bool lockRotation;
 
+  /// Pide huella (o el PIN del móvil) al abrir la app.
+  final bool appLock;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     ReadingTheme? readingTheme,
@@ -36,6 +40,7 @@ class AppSettings {
     double? lineHeight,
     bool? pdfNightMode,
     bool? lockRotation,
+    bool? appLock,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
@@ -47,6 +52,7 @@ class AppSettings {
       ),
       pdfNightMode: pdfNightMode ?? this.pdfNightMode,
       lockRotation: lockRotation ?? this.lockRotation,
+      appLock: appLock ?? this.appLock,
     );
   }
 
@@ -58,7 +64,8 @@ class AppSettings {
       other.fontSize == fontSize &&
       other.lineHeight == lineHeight &&
       other.pdfNightMode == pdfNightMode &&
-      other.lockRotation == lockRotation;
+      other.lockRotation == lockRotation &&
+      other.appLock == appLock;
 
   @override
   int get hashCode => Object.hash(
@@ -68,5 +75,6 @@ class AppSettings {
     lineHeight,
     pdfNightMode,
     lockRotation,
+    appLock,
   );
 }

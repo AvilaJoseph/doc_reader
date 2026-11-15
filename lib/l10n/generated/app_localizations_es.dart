@@ -427,4 +427,23 @@ class AppLocalizationsEs extends AppLocalizations {
   String signSaved(String name) {
     return 'Guardado como «$name»';
   }
+
+  @override
+  String get settingsSecurity => 'Seguridad';
+
+  @override
+  String get settingsAppLock => 'Bloqueo con huella';
+
+  @override
+  String get settingsAppLockBody =>
+      'Pide tu huella o el PIN del móvil al abrir Folio.';
+
+  @override
+  String get lockTitle => 'Folio está bloqueado';
+
+  @override
+  String get lockUnlock => 'Desbloquear';
+
+  @override
+  String get lockReason => 'Desbloquea para abrir tus documentos';
 }

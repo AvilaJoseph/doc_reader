@@ -223,5 +223,11 @@
         "type": "String"
       }
     }
-  }
+  },
+  "settingsSecurity": "Seguridad",
+  "settingsAppLock": "Bloqueo con huella",
+  "settingsAppLockBody": "Pide tu huella o el PIN del móvil al abrir Folio.",
+  "lockTitle": "Folio está bloqueado",
+  "lockUnlock": "Desbloquear",
+  "lockReason": "Desbloquea para abrir tus documentos"
 }

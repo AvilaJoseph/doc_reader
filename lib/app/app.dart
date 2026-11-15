@@ -1,3 +1,4 @@
+import 'package:doc_reader/app/app_lock_gate.dart';
 import 'package:doc_reader/app/incoming_files.dart';
 import 'package:doc_reader/app/router.dart';
 import 'package:doc_reader/core/theme/app_theme.dart';
@@ -23,8 +24,9 @@ class App extends ConsumerWidget {
       routerConfig: ref.watch(routerProvider),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      builder: (context, child) =>
-          IncomingFiles(child: child ?? const SizedBox.shrink()),
+      builder: (context, child) => AppLockGate(
+        child: IncomingFiles(child: child ?? const SizedBox.shrink()),
+      ),
     );
   }
 }

@@ -121,6 +121,9 @@ Detalle en `docs/ARCHITECTURE.md`; sistema de diseño en `docs/DESIGN.md`.
 - El lector de texto es una sola `SelectionArea`; cada párrafo informa de
   su parte de la selección con `SelectionListener` y
   `FlowSelectionRegistry` la convierte en fragmentos por párrafo.
+- Bloqueo con huella: `local_auth` exige `FlutterFragmentActivity` y un
+  `LaunchTheme` AppCompat (si no, el diálogo falla en Android ≤ 8).
+  `AppLockGate` tapa la app y vuelve a pedirla tras 30 s fuera.
 - Web solo se usa para capturas/previsualización; los imports de archivos
   usan `dart:io` y no funcionan en web.
 

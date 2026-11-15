@@ -859,6 +859,42 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Guardado como «{name}»'**
   String signSaved(String name);
+
+  /// No description provided for @settingsSecurity.
+  ///
+  /// In es, this message translates to:
+  /// **'Seguridad'**
+  String get settingsSecurity;
+
+  /// No description provided for @settingsAppLock.
+  ///
+  /// In es, this message translates to:
+  /// **'Bloqueo con huella'**
+  String get settingsAppLock;
+
+  /// No description provided for @settingsAppLockBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Pide tu huella o el PIN del móvil al abrir Folio.'**
+  String get settingsAppLockBody;
+
+  /// No description provided for @lockTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Folio está bloqueado'**
+  String get lockTitle;
+
+  /// No description provided for @lockUnlock.
+  ///
+  /// In es, this message translates to:
+  /// **'Desbloquear'**
+  String get lockUnlock;
+
+  /// No description provided for @lockReason.
+  ///
+  /// In es, this message translates to:
+  /// **'Desbloquea para abrir tus documentos'**
+  String get lockReason;
 }
 
 class _AppLocalizationsDelegate

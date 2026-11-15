@@ -427,4 +427,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String signSaved(String name) {
     return 'Saved as “$name”';
   }
+
+  @override
+  String get settingsSecurity => 'Security';
+
+  @override
+  String get settingsAppLock => 'Fingerprint lock';
+
+  @override
+  String get settingsAppLockBody =>
+      'Ask for your fingerprint or phone PIN when opening Folio.';
+
+  @override
+  String get lockTitle => 'Folio is locked';
+
+  @override
+  String get lockUnlock => 'Unlock';
+
+  @override
+  String get lockReason => 'Unlock to open your documents';
 }

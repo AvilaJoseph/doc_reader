@@ -53,6 +53,9 @@ abstract final class AppColors {
   /// Subrayado sobre fondos oscuros (más claro para que se vea).
   static const Color underlineNight = Color(0xFF6EA8FF);
 
+  /// Tinta de las firmas y textos que se añaden a un PDF.
+  static const Color signatureInk = Color(0xFF1B2A6B);
+
   /// Colores del resaltador (fondo translúcido sobre el texto).
   static const List<Color> highlights = [
     Color(0xFFF3DC8C), // mantequilla

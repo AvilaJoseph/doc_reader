@@ -380,4 +380,51 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get highlightsUnderlined => 'Subrayado';
+
+  @override
+  String get signTitle => 'Rellenar y firmar';
+
+  @override
+  String get signSave => 'Guardar';
+
+  @override
+  String get signSignature => 'Firma';
+
+  @override
+  String get signText => 'Texto';
+
+  @override
+  String get signDraw => 'Dibuja tu firma';
+
+  @override
+  String get signClear => 'Borrar';
+
+  @override
+  String get signUse => 'Usar';
+
+  @override
+  String get signUseSaved => 'Usar la firma guardada';
+
+  @override
+  String get signTextHint => 'Nombre, DNI, dirección…';
+
+  @override
+  String get signToday => 'Fecha de hoy';
+
+  @override
+  String get signAdd => 'Añadir';
+
+  @override
+  String get signRemove => 'Quitar';
+
+  @override
+  String get signSuffix => 'firmado';
+
+  @override
+  String get signFailed => 'No se pudo guardar el PDF';
+
+  @override
+  String signSaved(String name) {
+    return 'Guardado como «$name»';
+  }
 }

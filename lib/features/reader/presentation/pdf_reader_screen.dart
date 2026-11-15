@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:doc_reader/app/routes.dart';
 import 'package:doc_reader/core/theme/app_colors.dart';
 import 'package:doc_reader/core/theme/reading_theme.dart';
 import 'package:doc_reader/core/ui.dart';
@@ -16,6 +17,7 @@ import 'package:doc_reader/features/library/domain/library_document.dart';
 import 'package:doc_reader/features/reader/application/document_providers.dart';
 import 'package:doc_reader/features/reader/formats/pdf/pdf_night_filter.dart';
 import 'package:doc_reader/features/reader/formats/pdf/pdf_text_lines.dart';
+import 'package:doc_reader/features/reader/presentation/pdf_sign_screen.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/pdf_navigator_sheet.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_scaffold.dart';
 import 'package:doc_reader/features/reader/presentation/widgets/reader_search_bar.dart';
@@ -28,6 +30,7 @@ import 'package:doc_reader/l10n/l10n.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pdfrx/pdfrx.dart';
 
 /// Visor de PDF basado en pdfrx (PDFium): rápido, con zoom, selección de
@@ -435,6 +438,12 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
         muted: muted,
         onMore: widget.onMore,
         actions: [
+          if (_pageCount > 0)
+            ReaderBarAction(
+              icon: Icons.draw_outlined,
+              tooltip: context.l10n.signTitle,
+              onPressed: () => unawaited(_openSign()),
+            ),
           ReaderBarAction(
             icon: _night ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
             tooltip: _night
@@ -455,6 +464,20 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
               ),
       ),
     );
+  }
+
+  /// Rellenar y firmar: guarda una copia firmada y la abre en su lugar.
+  Future<void> _openSign() async {
+    final pdf = _controller.isReady ? _controller.document : null;
+    if (pdf == null) return;
+    final copy = await showPdfSignScreen(
+      context,
+      document: widget.document,
+      pdf: pdf,
+      pageNumber: _page,
+    );
+    if (copy == null || !mounted) return;
+    context.pushReplacement(AppRoutes.reader(copy.id, at: _page));
   }
 
   /// Etiqueta "N de M" derivada de [_pageNotifier].

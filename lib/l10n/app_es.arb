@@ -201,5 +201,27 @@
         "type": "int"
       }
     }
+  },
+  "signTitle": "Rellenar y firmar",
+  "signSave": "Guardar",
+  "signSignature": "Firma",
+  "signText": "Texto",
+  "signDraw": "Dibuja tu firma",
+  "signClear": "Borrar",
+  "signUse": "Usar",
+  "signUseSaved": "Usar la firma guardada",
+  "signTextHint": "Nombre, DNI, dirección…",
+  "signToday": "Fecha de hoy",
+  "signAdd": "Añadir",
+  "signRemove": "Quitar",
+  "signSuffix": "firmado",
+  "signFailed": "No se pudo guardar el PDF",
+  "signSaved": "Guardado como «{name}»",
+  "@signSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

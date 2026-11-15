@@ -74,7 +74,10 @@ Detalle en `docs/ARCHITECTURE.md`; sistema de diseño en `docs/DESIGN.md`.
   `parsePlainText`. Un único visor (`FlowReaderScreen`) los pinta.
 - `features/reader/formats/spreadsheet/`: modelo `Workbook/Sheet` +
   `parseXlsx`, `parseCsv` y `SpreadsheetView` (cuadrícula perezosa).
-- PDF: `pdfrx` (PDFium) directamente en `PdfReaderScreen`.
+- PDF: `pdfrx` (PDFium) directamente en `PdfReaderScreen`. "Rellenar y
+  firmar" (`PdfSignScreen`) incrusta firmas/textos como imágenes con las
+  FFI de `pdfium_dart` (`pdf_stamper_native.dart`, en el hilo de PDFium de
+  pdfrx) y guarda una copia; en web hay un stub.
 - Los parsers son funciones puras top-level, se ejecutan con `compute()` y
   lanzan `DocumentParseException`. Tienen tests con archivos reales.
 - Para añadir un formato usa la skill `.claude/skills/add-document-format`.

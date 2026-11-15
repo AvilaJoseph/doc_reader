@@ -111,5 +111,20 @@
   "highlightsPage": "Page {page}",
   "highlightsEditNote": "Edit note",
   "highlightsAddNote": "Add note",
-  "highlightsUnderlined": "Underlined"
+  "highlightsUnderlined": "Underlined",
+  "signTitle": "Fill & sign",
+  "signSave": "Save",
+  "signSignature": "Signature",
+  "signText": "Text",
+  "signDraw": "Draw your signature",
+  "signClear": "Clear",
+  "signUse": "Use",
+  "signUseSaved": "Use saved signature",
+  "signTextHint": "Name, ID, address…",
+  "signToday": "Today's date",
+  "signAdd": "Add",
+  "signRemove": "Remove",
+  "signSuffix": "signed",
+  "signFailed": "Couldn't save the PDF",
+  "signSaved": "Saved as “{name}”"
 }

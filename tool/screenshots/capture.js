@@ -39,6 +39,9 @@ const hl = [
     ['reader-pdf-outline','/reader/p','light',{},{tap:[[218,801],[154,230]]}],
     ['reader-pdf-select','/reader/p','light',{},{longPress:[150,290]}],
     ['reader-docx-select','/reader/w','light',{},{longPress:[150,500], dragTo:[200,560]}],
+    ['reader-pdf-sign','/reader/p','light',{},{tap:[202,28]}],
+    ['reader-pdf-sign-pad','/reader/p','light',{},{tap:[[202,28],[244,793]],draw:[[70,660],[90,560],[110,640],[130,600],[150,650],[175,580],[200,655],[230,600],[260,640],[300,610],[330,630]]}],
+    ['reader-pdf-signed','/reader/p','light',{},{tap:[[202,28],[244,793]],draw:[[70,660],[90,560],[110,640],[130,600],[150,650],[175,580],[200,655],[230,600],[260,640],[300,610],[330,630]],after:[[334,810]]}],
     ['highlights','/highlights','light',{}],
     ['settings','/settings','light',{}],
     ['empty','/library','light',{empty:true}],
@@ -62,6 +65,19 @@ const hl = [
       for (const [tx, ty] of taps) {
         await page.mouse.click(tx, ty);
         await page.waitForTimeout(2500);
+      }
+    }
+    if (act && act.draw) {
+      // Trazo con el ratón (p. ej. una firma en el panel de dibujo).
+      const [first, ...rest] = act.draw;
+      await page.mouse.move(first[0], first[1]);
+      await page.mouse.down();
+      for (const [dx, dy] of rest) await page.mouse.move(dx, dy, {steps: 6});
+      await page.mouse.up();
+      await page.waitForTimeout(800);
+      for (const [tx, ty] of (act.after || [])) {
+        await page.mouse.click(tx, ty);
+        await page.waitForTimeout(2000);
       }
     }
     if (act && act.longPress) {

@@ -47,3 +47,9 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // Tema AppCompat del diálogo de huella (local_auth). Ya llega con
+    // androidx.biometric; se declara para que el tema no dependa de ello.
+    implementation("androidx.appcompat:appcompat:1.7.0")
+}

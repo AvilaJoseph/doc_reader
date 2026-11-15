@@ -380,4 +380,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get highlightsUnderlined => 'Underlined';
+
+  @override
+  String get signTitle => 'Fill & sign';
+
+  @override
+  String get signSave => 'Save';
+
+  @override
+  String get signSignature => 'Signature';
+
+  @override
+  String get signText => 'Text';
+
+  @override
+  String get signDraw => 'Draw your signature';
+
+  @override
+  String get signClear => 'Clear';
+
+  @override
+  String get signUse => 'Use';
+
+  @override
+  String get signUseSaved => 'Use saved signature';
+
+  @override
+  String get signTextHint => 'Name, ID, address…';
+
+  @override
+  String get signToday => 'Today\'s date';
+
+  @override
+  String get signAdd => 'Add';
+
+  @override
+  String get signRemove => 'Remove';
+
+  @override
+  String get signSuffix => 'signed';
+
+  @override
+  String get signFailed => 'Couldn\'t save the PDF';
+
+  @override
+  String signSaved(String name) {
+    return 'Saved as “$name”';
+  }
+
+  @override
+  String get settingsSecurity => 'Security';
+
+  @override
+  String get settingsAppLock => 'Fingerprint lock';
+
+  @override
+  String get settingsAppLockBody =>
+      'Ask for your fingerprint or phone PIN when opening Folio.';
+
+  @override
+  String get lockTitle => 'Folio is locked';
+
+  @override
+  String get lockUnlock => 'Unlock';
+
+  @override
+  String get lockReason => 'Unlock to open your documents';
 }

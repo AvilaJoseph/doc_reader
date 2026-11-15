@@ -769,6 +769,132 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Subrayado'**
   String get highlightsUnderlined;
+
+  /// No description provided for @signTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Rellenar y firmar'**
+  String get signTitle;
+
+  /// No description provided for @signSave.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar'**
+  String get signSave;
+
+  /// No description provided for @signSignature.
+  ///
+  /// In es, this message translates to:
+  /// **'Firma'**
+  String get signSignature;
+
+  /// No description provided for @signText.
+  ///
+  /// In es, this message translates to:
+  /// **'Texto'**
+  String get signText;
+
+  /// No description provided for @signDraw.
+  ///
+  /// In es, this message translates to:
+  /// **'Dibuja tu firma'**
+  String get signDraw;
+
+  /// No description provided for @signClear.
+  ///
+  /// In es, this message translates to:
+  /// **'Borrar'**
+  String get signClear;
+
+  /// No description provided for @signUse.
+  ///
+  /// In es, this message translates to:
+  /// **'Usar'**
+  String get signUse;
+
+  /// No description provided for @signUseSaved.
+  ///
+  /// In es, this message translates to:
+  /// **'Usar la firma guardada'**
+  String get signUseSaved;
+
+  /// No description provided for @signTextHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre, DNI, dirección…'**
+  String get signTextHint;
+
+  /// No description provided for @signToday.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha de hoy'**
+  String get signToday;
+
+  /// No description provided for @signAdd.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir'**
+  String get signAdd;
+
+  /// No description provided for @signRemove.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar'**
+  String get signRemove;
+
+  /// No description provided for @signSuffix.
+  ///
+  /// In es, this message translates to:
+  /// **'firmado'**
+  String get signSuffix;
+
+  /// No description provided for @signFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo guardar el PDF'**
+  String get signFailed;
+
+  /// No description provided for @signSaved.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardado como «{name}»'**
+  String signSaved(String name);
+
+  /// No description provided for @settingsSecurity.
+  ///
+  /// In es, this message translates to:
+  /// **'Seguridad'**
+  String get settingsSecurity;
+
+  /// No description provided for @settingsAppLock.
+  ///
+  /// In es, this message translates to:
+  /// **'Bloqueo con huella'**
+  String get settingsAppLock;
+
+  /// No description provided for @settingsAppLockBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Pide tu huella o el PIN del móvil al abrir Folio.'**
+  String get settingsAppLockBody;
+
+  /// No description provided for @lockTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Folio está bloqueado'**
+  String get lockTitle;
+
+  /// No description provided for @lockUnlock.
+  ///
+  /// In es, this message translates to:
+  /// **'Desbloquear'**
+  String get lockUnlock;
+
+  /// No description provided for @lockReason.
+  ///
+  /// In es, this message translates to:
+  /// **'Desbloquea para abrir tus documentos'**
+  String get lockReason;
 }
 
 class _AppLocalizationsDelegate

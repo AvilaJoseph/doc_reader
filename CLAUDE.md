@@ -74,7 +74,10 @@ Detalle en `docs/ARCHITECTURE.md`; sistema de diseño en `docs/DESIGN.md`.
   `parsePlainText`. Un único visor (`FlowReaderScreen`) los pinta.
 - `features/reader/formats/spreadsheet/`: modelo `Workbook/Sheet` +
   `parseXlsx`, `parseCsv` y `SpreadsheetView` (cuadrícula perezosa).
-- PDF: `pdfrx` (PDFium) directamente en `PdfReaderScreen`.
+- PDF: `pdfrx` (PDFium) directamente en `PdfReaderScreen`. "Rellenar y
+  firmar" (`PdfSignScreen`) incrusta firmas/textos como imágenes con las
+  FFI de `pdfium_dart` (`pdf_stamper_native.dart`, en el hilo de PDFium de
+  pdfrx) y guarda una copia; en web hay un stub.
 - Los parsers son funciones puras top-level, se ejecutan con `compute()` y
   lanzan `DocumentParseException`. Tienen tests con archivos reales.
 - Para añadir un formato usa la skill `.claude/skills/add-document-format`.
@@ -118,6 +121,9 @@ Detalle en `docs/ARCHITECTURE.md`; sistema de diseño en `docs/DESIGN.md`.
 - El lector de texto es una sola `SelectionArea`; cada párrafo informa de
   su parte de la selección con `SelectionListener` y
   `FlowSelectionRegistry` la convierte en fragmentos por párrafo.
+- Bloqueo con huella: `local_auth` exige `FlutterFragmentActivity` y un
+  `LaunchTheme` AppCompat (si no, el diálogo falla en Android ≤ 8).
+  `AppLockGate` tapa la app y vuelve a pedirla tras 30 s fuera.
 - Web solo se usa para capturas/previsualización; los imports de archivos
   usan `dart:io` y no funcionan en web.
 

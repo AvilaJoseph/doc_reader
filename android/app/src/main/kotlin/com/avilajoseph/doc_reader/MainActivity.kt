@@ -7,7 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
@@ -21,7 +21,7 @@ import java.util.concurrent.Executors
  * WhatsApp, Gmail o Archivos solo son legibles mientras dura el permiso
  * temporal) y Dart lo importa a la biblioteca.
  */
-class MainActivity : FlutterActivity() {
+class MainActivity : FlutterFragmentActivity() {
     private val io = Executors.newSingleThreadExecutor()
     private val main = Handler(Looper.getMainLooper())
     private var channel: MethodChannel? = null
